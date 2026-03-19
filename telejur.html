@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequência Telejur PRO</title>
+    <title>Frequência Telejur - Oficial</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; }
-        .container { max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); margin: auto; }
-        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; }
-        .card-status { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; text-align: center; }
-        .status-box { background: #f8f9fa; padding: 10px; border-radius: 10px; border: 1px solid #dee2e6; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        /* Dashboard de Status */
+        .card-status { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .status-box { background: #f8f9fa; padding: 10px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
         .status-box span { display: block; font-size: 18px; font-weight: bold; color: #075E54; }
-        .status-box label { font-size: 11px; text-transform: uppercase; color: #6c757d; }
-        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
-        .item-info { display: flex; align-items: center; }
-        .item-info input { margin-right: 15px; transform: scale(1.4); }
-        select { font-size: 12px; border-radius: 5px; border: 1px solid #ddd; padding: 2px; color: #666; }
+        .status-box label { font-size: 10px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
+
+        /* Lista de Equipe */
+        .lista-container { border-top: 1px solid #eee; }
+        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #f1f1f1; }
+        .item-info { display: flex; align-items: center; gap: 12px; }
+        .item-info input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+        .nome-func { font-size: 14px; color: #333; }
+        
+        select { font-size: 11px; border-radius: 5px; border: 1px solid #ccc; padding: 4px; color: #d9534f; background: #fff5f5; font-weight: bold; }
         .hidden { display: none; }
-        button { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; }
-        button:hover { background-color: #128C7E; }
+
+        button { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        button:hover { background-color: #128C7E; transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -32,35 +40,105 @@
         <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
     </div>
 
-    <div id="lista-equipe">
+    <div class="lista-container" id="corpo-lista">
         </div>
 
-    <button onclick="enviarWhatsapp()">🚀 Enviar Relatório</button>
+    <button onclick="enviarWhatsapp()">🚀 Enviar para Mirielly</button>
 </div>
 
 <script>
-    const equipe = ["Adriano Ferreira", "Cezar Prado", "Deivison Aleidson", "Edenildo Rodrigues", "Francivaldo Costa", "Joelcinei Guimarães", "Jean Soares", "Lucas Santos", "Matheus Costa", "Welyton Pereira", "Ruan Barros"];
+    const equipe = [
+        "Adriano Ferreira", "Cezar Prado", "Deivison Aleidson", 
+        "Edenildo Rodrigues", "Francivaldo Costa", "Joelcinei Guimarães", 
+        "Jean Soares", "Lucas Santos", "Matheus Costa", 
+        "Welyton Pereira", "Ruan Barros"
+    ];
     
-    const listaDiv = document.getElementById('lista-equipe');
+    const listaDiv = document.getElementById('corpo-lista');
 
-    // Cria a lista dinamicamente
-    equipe.forEach((nome, index) => {
-        listaDiv.innerHTML += `
-            <div class="item-lista">
-                <div class="item-info">
-                    <input type="checkbox" id="check-${index}" class="membro" checked onchange="atualizarStatus()">
-                    <span id="nome-${index}">${nome}</span>
+    // Gera a lista ao carregar a página
+    function carregarLista() {
+        listaDiv.innerHTML = "";
+        equipe.forEach((nome, i) => {
+            listaDiv.innerHTML += `
+                <div class="item-lista">
+                    <div class="item-info">
+                        <input type="checkbox" id="check-${i}" checked onchange="atualizarInterface(${i})">
+                        <span class="nome-func" id="label-${i}">${nome}</span>
+                    </div>
+                    <select id="motivo-${i}" class="hidden" onchange="contarStatus()">
+                        <option value="Falta sem justificativa">❌ Falta</option>
+                        <option value="atestado">🏥 Atestado</option>
+                        <option value="Férias">🌴 Férias</option>
+                    </select>
                 </div>
-                <select id="motivo-${index}" class="hidden" onchange="atualizarStatus()">
-                    <option value="Falta">Falta</option>
-                    <option value="Atestado">Atestado</option>
-                    <option value="Férias">Férias</option>
-                </select>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
 
-    function atualizarStatus() {
+    function atualizarInterface(index) {
+        const checkbox = document.getElementById(`check-${index}`);
+        const select = document.getElementById(`motivo-${index}`);
+        const nomeTxt = document.getElementById(`label-${index}`);
+
+        if (!checkbox.checked) {
+            select.classList.remove('hidden');
+            nomeTxt.style.color = "#999";
+        } else {
+            select.classList.add('hidden');
+            nomeTxt.style.color = "#333";
+        }
+        contarStatus();
+    }
+
+    function contarStatus() {
         let f = 0, a = 0, faltas = 0;
         equipe.forEach((_, i) => {
-            const check = document.getElementById(`check
+            const checkbox = document.getElementById(`check-${i}`);
+            if (!checkbox.checked) {
+                const motivo = document.getElementById(`motivo-${i}`).value;
+                if (motivo === "Férias") f++;
+                else if (motivo === "atestado") a++;
+                else faltas++;
+            }
+        });
+        document.getElementById('count-ferias').innerText = f;
+        document.getElementById('count-atestado').innerText = a;
+        document.getElementById('count-faltas').innerText = faltas;
+    }
+
+    function enviarWhatsapp() {
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        let presentes = [], ferias = [], atestados = [], faltas = [];
+
+        equipe.forEach((nome, i) => {
+            const checkbox = document.getElementById(`check-${i}`);
+            if (checkbox.checked) {
+                presentes.push(nome);
+            } else {
+                const motivo = document.getElementById(`motivo-${i}`).value;
+                if (motivo === "Férias") ferias.push(nome);
+                else if (motivo === "atestado") atestados.push(nome);
+                else faltas.push(nome);
+            }
+        });
+
+        let mensagem = `Segue Lista de frequência de hoje. Atentar nas observações.\n\n`;
+        mensagem += `✅ *Empresa: Telejur*\n`;
+        mensagem += `Informações\n\n`;
+        mensagem += `Data: ${dataHoje}\n\n`;
+        mensagem += `✔️Efetivo na planta: ${presentes.length}\n`;
+        presentes.forEach(n => mensagem += `${n}\n`);
+        
+        mensagem += `\n✔️Férias (${ferias.length})${ferias.length > 0 ? ': ' + ferias.join(', ') : ''}\n`;
+        mensagem += `\n✔️atestado (${atestados.length})${atestados.length > 0 ? ': ' + atestados.join(', ') : ''}\n`;
+        mensagem += `\n✔️Falta sem justificativa (${faltas.length})${faltas.length > 0 ? ': ' + faltas.join(', ') : ''}`;
+
+        window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(mensagem), '_blank');
+    }
+
+    carregarLista();
+</script>
+
+</body>
+</html>
