@@ -67,6 +67,7 @@
         "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
     ];
 
+    // Coordenadas centrais
     const pontosAlcoa = [
         { nome: "ALCOA - PORTO", lat: -2.1555, lon: -56.0955 },
         { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
@@ -74,9 +75,9 @@
 
     let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "", hora: "" };
 
-    // Função Haversine para calcular distância real em metros
+    // Cálculo Haversine para precisão em metros
     function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
-        const R = 6371000; // Raio da Terra em metros
+        const R = 6371000; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -123,7 +124,10 @@
 
     async function obterGps() {
         const statusGps = document.getElementById('status-gps');
-        if (!navigator.geolocation) return;
+        if (!navigator.geolocation) {
+            statusGps.innerText = "❌ GPS não suportado";
+            return;
+        }
 
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const lat = pos.coords.latitude; 
@@ -135,7 +139,7 @@
             let plantaIdentificada = null;
             for (const p of pontosAlcoa) {
                 const dist = calcularDistanciaMetros(lat, lon, p.lat, p.lon);
-                if (dist <= 200) { // Limite de 200 metros
+                if (dist <= 1000) { // AJUSTADO PARA 1 KM
                     plantaIdentificada = p.nome;
                     break;
                 }
@@ -152,8 +156,8 @@
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                     const data = await res.json();
-                    const rua = data.address.road || "Rua não identificada";
-                    const bairro = data.address.suburb || data.address.neighbourhood || "Bairro não identificado";
+                    const rua = data.address.road || "Localização identificada";
+                    const bairro = data.address.suburb || data.address.neighbourhood || "Área Externa";
                     
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
                     dadosLoc.enderecoFormatado = `${rua}, ${bairro}`;
@@ -167,7 +171,10 @@
                     statusGps.innerText = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`;
                 }
             }
-        });
+        }, (error) => {
+            statusGps.innerText = "❌ Erro ao capturar GPS";
+            console.error(error);
+        }, { enableHighAccuracy: true });
     }
 
     function monitorar() {
