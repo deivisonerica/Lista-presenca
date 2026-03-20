@@ -22,7 +22,6 @@
         select { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
         .hidden { display: none; }
 
-        /* Barra de Status Dinâmica */
         .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; }
         
         button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
@@ -57,7 +56,7 @@
         <div id="corpo-lista"></div>
     </div>
 
-    <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar para Mirielly</button>
+    <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no grupo operacional</button>
 </div>
 
 <script>
@@ -73,7 +72,7 @@
         { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
     ];
 
-    let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "" };
+    let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "", hora: "" };
 
     function carregarLista() {
         const listaDiv = document.getElementById('corpo-lista');
@@ -116,11 +115,12 @@
 
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+            const agora = new Date();
+            dadosLoc.hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             dadosLoc.link = `https://www.google.com/maps?q=${lat},${lon}`;
             
             let plantaIdentificada = null;
             for (const p of pontosAlcoa) {
-                // Raio de proximidade Alcoa
                 if (Math.sqrt(Math.pow(lat - p.lat, 2) + Math.pow(lon - p.lon, 2)) < 0.009) plantaIdentificada = p.nome;
             }
 
@@ -129,7 +129,7 @@
                 dadosLoc.enderecoFormatado = plantaIdentificada;
                 dadosLoc.statusMsg = "Presente na Planta";
                 
-                statusGps.innerHTML = `✅ ${plantaIdentificada}`;
+                statusGps.innerHTML = `✅ ${plantaIdentificada} - ${dadosLoc.hora}`;
                 statusGps.style.backgroundColor = "#075E54";
             } else {
                 try {
@@ -142,13 +142,12 @@
                     dadosLoc.enderecoFormatado = `${rua}, ${bairro}`;
                     dadosLoc.statusMsg = "Ausente (Local Externo)";
                     
-                    // NO SISTEMA: Detalha a rua e bairro na barra vermelha
-                    statusGps.innerHTML = `🛑 FORA DA PLANTA<br><span style="font-size:11px; font-weight:normal;">${rua}, ${bairro}</span>`;
+                    statusGps.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}<br><span style="font-size:11px; font-weight:normal;">${rua}, ${bairro}</span>`;
                     statusGps.style.backgroundColor = "#d9534f";
                 } catch (e) {
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
                     dadosLoc.enderecoFormatado = "Local Externo";
-                    statusGps.innerText = "🛑 FORA DA PLANTA";
+                    statusGps.innerText = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`;
                 }
             }
         });
@@ -180,7 +179,7 @@
 
         if (modo === "individual") {
             const nome = document.getElementById('select-individual').value;
-            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Local:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
+            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Local:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
         } else {
             let cat = { planta: [], ferias: [], atestado: [], viagem: [], just: [], falta: [] };
             equipe.forEach((nome, i) => {
