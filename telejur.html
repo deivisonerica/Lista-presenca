@@ -19,10 +19,10 @@
         .item-info input { transform: scale(1.3); cursor: pointer; }
         .nome-func { font-size: 14px; color: #333; }
         
-        select, .input-gps { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
+        select { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
         .hidden { display: none; }
 
-        .btn-gps { background-color: #34b7f1; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; width: 100%; }
+        .btn-gps { background-color: #34b7f1; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; width: 100%; transition: 0.3s; }
         button { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
         button:hover { background-color: #128C7E; }
         .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
@@ -70,17 +70,16 @@
     
     const listaDiv = document.getElementById('corpo-lista');
     const selectIndividual = document.getElementById('select-individual');
-    let localizacaoAtual = "";
+    let dadosLocalizacao = { link: "", endereco: "" };
 
     function carregarLista() {
         listaDiv.innerHTML = "";
         selectIndividual.innerHTML = "";
         equipe.forEach((nome, i) => {
-            // Preenche lista geral
             listaDiv.innerHTML += `
                 <div class="item-lista">
                     <div class="item-info">
-                        <input type="checkbox" id="check-${i}" checked onchange="monitorar(${i})">
+                        <input type="checkbox" id="check-${i}" checked onchange="monitorar()">
                         <span class="nome-func" id="label-${i}">${nome}</span>
                     </div>
                     <select id="motivo-${i}" class="hidden" style="width: auto; margin-bottom: 0;" onchange="monitorar()">
@@ -90,9 +89,7 @@
                         <option value="Em Viagem">✈️ Viagem</option>
                         <option value="Falta Justificada">✅ Justificada</option>
                     </select>
-                </div>
-            `;
-            // Preenche select individual
+                </div>`;
             selectIndividual.innerHTML += `<option value="${nome}">${nome}</option>`;
         });
     }
@@ -103,28 +100,43 @@
         document.getElementById('campos-individual').classList.toggle('hidden', modo === 'geral');
     }
 
-    function obterLocalizacao() {
+    async function obterLocalizacao() {
         const btn = document.getElementById('btn-gps');
-        if (navigator.geolocation) {
-            btn.innerText = "⌛ Localizando...";
-            navigator.geolocation.getCurrentPosition((pos) => {
-                localizacaoAtual = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                btn.innerText = "✅ Localização Capturada";
+        if (!navigator.geolocation) return alert("GPS não suportado.");
+
+        btn.innerText = "⌛ Localizando...";
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            
+            // Link direto do Google Maps
+            dadosLocalizacao.link = `https://www.google.com/maps?q=${lat},${lon}`;
+
+            try {
+                // Busca o nome do local (Endereço) usando API gratuita
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const data = await response.json();
+                // Formata o endereço amigável (Rua, Número - Bairro)
+                const addr = data.address;
+                dadosLocalizacao.endereco = `${addr.road || 'Rua não identificada'}${addr.house_number ? ', ' + addr.house_number : ''} - ${addr.suburb || addr.town || ''}`;
+                
+                btn.innerText = "✅ " + dadosLocalizacao.endereco;
                 btn.style.backgroundColor = "#075E54";
-            }, () => {
-                alert("Erro ao obter localização. Verifique o GPS.");
-                btn.innerText = "❌ Erro no GPS";
-            });
-        }
+            } catch (e) {
+                dadosLocalizacao.endereco = "Localização Capturada";
+                btn.innerText = "✅ Localização Capturada";
+            }
+        }, () => {
+            btn.innerText = "❌ Erro no GPS";
+        });
     }
 
-    function monitorar(index) {
+    function monitorar() {
         let f = 0, a = 0, v = 0, j = 0, faltas = 0;
         equipe.forEach((_, i) => {
             const cb = document.getElementById(`check-${i}`);
             const sel = document.getElementById(`motivo-${i}`);
             const txt = document.getElementById(`label-${i}`);
-
             if (!cb.checked) {
                 sel.classList.remove('hidden');
                 txt.style.color = "#aaa";
@@ -148,7 +160,12 @@
     function enviarWhatsapp() {
         const modo = document.getElementById('modo-envio').value;
         const dataHoje = new Date().toLocaleDateString('pt-BR');
-        const locTxt = localizacaoAtual ? `📍 Localização: ${localizacaoAtual}\n` : "";
+        
+        // Formatação amigável da localização
+        const locMsg = dadosLocalizacao.link 
+            ? `📍 *Local:* ${dadosLocalizacao.endereco}\n🔗 *Link:* ${dadosLocalizacao.link}\n` 
+            : "";
+
         let msg = "";
 
         if (modo === "individual") {
@@ -157,8 +174,8 @@
                   `✅ *Empresa: Telejur*\n` +
                   `Data: ${dataHoje}\n` +
                   `Funcionário: _${nome}_\n` +
-                  `Status: ✔️ Presente na planta\n` +
-                  locTxt;
+                  `Status: ✔️ Presente na planta\n\n` +
+                  locMsg;
         } else {
             let pres = [], fer = [], ate = [], via = [], jus = [], fal = [];
             equipe.forEach((nome, i) => {
@@ -177,14 +194,14 @@
 
             msg = `Segue Lista de frequência de hoje.\n\n` +
                   `✅ *Empresa: Telejur*\n` +
-                  `Data: ${dataHoje}\n` +
-                  locTxt + `\n` +
-                  `✔️Efetivo na planta: ${pres.length}\n${pres.join('\n')}\n\n` +
+                  `Data: ${dataHoje}\n\n` +
+                  locMsg + `\n` +
+                  `✔️*Efetivo na planta:* ${pres.length}\n${pres.join('\n')}\n\n` +
                   `✔️Férias (${fer.length})${fer.length ? ': ' + fer.join(', ') : ''}\n\n` +
-                  `✔️atestado (${ate.length})${ate.length ? ': ' + ate.join('\n') : ''}\n\n` +
-                  `✔️Em viagem (${via.length})${via.length ? ': ' + via.join('\n') : ''}\n\n` +
-                  `✔️Falta justificada (${jus.length})${jus.length ? ': ' + jus.join('\n') : ''}\n\n` +
-                  `✔️Falta sem justificativa (${fal.length})${fal.length ? ': ' + fal.join('\n') : ''}`;
+                  `✔️atestado (${ate.length})${ate.length ? ': ' + ate.join(', ') : ''}\n\n` +
+                  `✔️Em viagem (${via.length})${via.length ? ': ' + via.join(', ') : ''}\n\n` +
+                  `✔️Falta justificada (${jus.length})${jus.length ? ': ' + jus.join(', ') : ''}\n\n` +
+                  `✔️Falta sem justificativa (${fal.length})${fal.length ? ': ' + fal.join(', ') : ''}`;
         }
 
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
