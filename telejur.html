@@ -67,8 +67,9 @@
         "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
     ];
 
+    // Coordenadas atualizadas com base no seu link recente
     const pontosAlcoa = [
-        { nome: "ALCOA - PORTO", lat: -2.14815, lon: -56.09631 },
+        { nome: "ALCOA - PORTO", lat: -2.1677, lon: -56.1017 },
         { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
     ];
 
@@ -152,9 +153,8 @@
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                     const data = await res.json();
                     
-                    // Captura Rua e Bairro de forma amigável
-                    const rua = data.address.road || data.address.pedestrian || "Via não identificada";
-                    const bairro = data.address.suburb || data.address.neighbourhood || data.address.village || "Bairro não identificado";
+                    const rua = data.address.road || data.address.pedestrian || "Via identificada";
+                    const bairro = data.address.suburb || data.address.neighbourhood || data.address.village || "Área Externa";
                     const cidade = data.address.city || data.address.town || "";
 
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
