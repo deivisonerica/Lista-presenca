@@ -86,7 +86,7 @@
                     </div>
                     <select id="motivo-${i}" class="hidden" style="width: auto;" onchange="monitorar()">
                         <option value="Falta sem justificativa">Falta sem justificativa</option>
-                        <option value="atestado">atestado</option>
+                        <option value="Atestado">Atestado</option>
                         <option value="Férias">Férias</option>
                         <option value="Em viagem">Em viagem</option>
                         <option value="Falta justificada">Falta justificada</option>
@@ -136,7 +136,7 @@
             if (!cb.checked) {
                 sel.classList.remove('hidden');
                 if (sel.value === "Férias") f++;
-                else if (sel.value === "atestado") a++;
+                else if (sel.value === "Atestado") a++;
                 else if (sel.value === "Falta justificada") j++;
                 else s++;
             } else { sel.classList.add('hidden'); }
@@ -163,7 +163,7 @@
                 else {
                     const mot = document.getElementById(`motivo-${i}`).value;
                     if (mot === "Férias") cat.ferias.push(`_${nome}_`);
-                    else if (mot === "atestado") cat.atestado.push(`_${nome}_`);
+                    else if (mot === "Atestado") cat.atestado.push(`_${nome}_`);
                     else if (mot === "Em viagem") cat.viagem.push(`_${nome}_`);
                     else if (mot === "Falta justificada") cat.just.push(`_${nome}_`);
                     else cat.falta.push(`_${nome}_`);
@@ -173,7 +173,7 @@
             msg = `Segue Lista de frequência de hoje. Atentar nas observações.\n\n✅ *Empresa: Telejur*\nData: ${data}\n\n` +
                   `✔️ *Efetivo na planta: ${cat.planta.length}*\n${cat.planta.join('\n')}\n\n` +
                   `✔️ *Férias (${cat.ferias.length})*${cat.ferias.length > 0 ? ': ' + cat.ferias.join(', ') : ''}\n\n` +
-                  `✔️ *atestado (${cat.atestado.length})*${cat.atestado.length > 0 ? ': ' + cat.atestado.join(', ') : ''}\n\n` +
+                  `✔️ *Atestado (${cat.atestado.length})*${cat.atestado.length > 0 ? ': ' + cat.atestado.join(', ') : ''}\n\n` +
                   `✔️ *Em viagem (${cat.viagem.length})*${cat.viagem.length > 0 ? ': ' + cat.viagem.join(', ') : ''}\n\n` +
                   `✔️ *Falta justificada (${cat.just.length})*${cat.just.length > 0 ? ': ' + cat.just.join(', ') : ''}\n\n` +
                   `✔️ *Falta sem justificativa (${cat.falta.length})*${cat.falta.length > 0 ? ': ' + cat.falta.join(', ') : ''}`;
