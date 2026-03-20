@@ -22,7 +22,7 @@
         select { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
         .hidden { display: none; }
 
-        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; }
+        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; min-height: 50px; }
         
         button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
         .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
@@ -67,15 +67,13 @@
         "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
     ];
 
-    // Coordenadas centrais
     const pontosAlcoa = [
-        { nome: "ALCOA - PORTO", lat: -2.1555, lon: -56.0955 },
+        { nome: "ALCOA - PORTO", lat: -2.14815, lon: -56.09631 },
         { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
     ];
 
     let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "", hora: "" };
 
-    // Cálculo Haversine para precisão em metros
     function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
         const R = 6371000; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -124,10 +122,7 @@
 
     async function obterGps() {
         const statusGps = document.getElementById('status-gps');
-        if (!navigator.geolocation) {
-            statusGps.innerText = "❌ GPS não suportado";
-            return;
-        }
+        if (!navigator.geolocation) return;
 
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const lat = pos.coords.latitude; 
@@ -139,7 +134,7 @@
             let plantaIdentificada = null;
             for (const p of pontosAlcoa) {
                 const dist = calcularDistanciaMetros(lat, lon, p.lat, p.lon);
-                if (dist <= 1000) { // AJUSTADO PARA 1 KM
+                if (dist <= 1000) { 
                     plantaIdentificada = p.nome;
                     break;
                 }
@@ -156,25 +151,25 @@
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                     const data = await res.json();
-                    const rua = data.address.road || "Localização identificada";
-                    const bairro = data.address.suburb || data.address.neighbourhood || "Área Externa";
                     
+                    // Captura Rua e Bairro de forma amigável
+                    const rua = data.address.road || data.address.pedestrian || "Via não identificada";
+                    const bairro = data.address.suburb || data.address.neighbourhood || data.address.village || "Bairro não identificado";
+                    const cidade = data.address.city || data.address.town || "";
+
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
                     dadosLoc.enderecoFormatado = `${rua}, ${bairro}`;
-                    dadosLoc.statusMsg = "Ausente (Local Externo)";
+                    dadosLoc.statusMsg = `Ausente em ${cidade}`;
                     
                     statusGps.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}<br><span style="font-size:11px; font-weight:normal;">${rua}, ${bairro}</span>`;
                     statusGps.style.backgroundColor = "#d9534f";
                 } catch (e) {
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
-                    dadosLoc.enderecoFormatado = "Local Externo";
+                    dadosLoc.enderecoFormatado = "Localização Externa";
                     statusGps.innerText = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`;
                 }
             }
-        }, (error) => {
-            statusGps.innerText = "❌ Erro ao capturar GPS";
-            console.error(error);
-        }, { enableHighAccuracy: true });
+        }, null, { enableHighAccuracy: true });
     }
 
     function monitorar() {
@@ -203,7 +198,7 @@
 
         if (modo === "individual") {
             const nome = document.getElementById('select-individual').value;
-            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Local:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
+            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Rua/Bairro:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
         } else {
             let cat = { planta: [], ferias: [], atestado: [], viagem: [], just: [], falta: [] };
             equipe.forEach((nome, i) => {
