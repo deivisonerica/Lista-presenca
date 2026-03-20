@@ -39,7 +39,7 @@
         <option value="individual">Formulário Individual</option>
     </select>
 
-    <div id="status-gps" class="btn-gps">⌛ Validando localização...</div>
+    <div id="status-gps" class="btn-gps">⌛ Validando presença na Alcoa...</div>
 
     <div id="campos-individual" class="hidden">
         <label class="label-peq">FUNCIONÁRIO:</label>
@@ -68,13 +68,12 @@
         "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
     ];
 
-    // Coordenadas de referência Alcoa Juruti
     const pontosAlcoa = [
         { nome: "Alcoa Juruti Porto", lat: -2.155555, lon: -56.095555 },
         { nome: "Alcoa Juruti Beneficiamento", lat: -2.448888, lon: -56.170888 }
     ];
     
-    let dadosLocalizacao = { link: "", endereco: "Não identificada" };
+    let dadosLocalizacao = { link: "", endereco: "Fora da Planta", statusFrequencia: "Ausente" };
 
     function carregarLista() {
         const listaDiv = document.getElementById('corpo-lista');
@@ -106,7 +105,6 @@
         document.getElementById('campos-individual').classList.toggle('hidden', modo === 'geral');
     }
 
-    // Identifica se está no Porto ou Beneficiamento (raio de ~800m)
     function identificarPlanta(lat, lon) {
         for (const ponto of pontosAlcoa) {
             const dist = Math.sqrt(Math.pow(lat - ponto.lat, 2) + Math.pow(lon - ponto.lon, 2));
@@ -128,32 +126,18 @@
             
             if (plantaDetectada) {
                 dadosLocalizacao.endereco = plantaDetectada;
-                statusGps.innerText = "✅ Local: " + plantaDetectada;
+                dadosLocalizacao.statusFrequencia = "Presente";
+                statusGps.innerText = "✅ STATUS: PRESENTE (" + plantaDetectada + ")";
                 statusGps.style.backgroundColor = "#075E54";
             } else {
-                try {
-                    // Se não estiver na planta, busca o endereço da rua e cidade
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-                    const data = await res.json();
-                    
-                    if (data.address) {
-                        const rua = data.address.road || "Rua não identificada";
-                        const cidade = data.address.city || data.address.town || "Juruti";
-                        dadosLocalizacao.endereco = `${rua}, ${cidade}`;
-                    } else {
-                        dadosLocalizacao.endereco = "Juruti - PA";
-                    }
-                    
-                    statusGps.innerText = "📍 " + dadosLocalizacao.endereco;
-                    statusGps.style.backgroundColor = "#075E54";
-                } catch (e) {
-                    dadosLocalizacao.endereco = "Juruti - PA";
-                    statusGps.innerText = "✅ Localização Capturada";
-                }
+                dadosLocalizacao.endereco = "Fora da Planta";
+                dadosLocalizacao.statusFrequencia = "Ausente";
+                statusGps.innerText = "🛑 STATUS: AUSENTE (Fora da Planta)";
+                statusGps.style.backgroundColor = "#d9534f";
             }
         }, () => {
-            statusGps.innerText = "⚠️ Ative o GPS";
-            statusGps.style.backgroundColor = "#d9534f";
+            statusGps.innerText = "⚠️ GPS Necessário";
+            statusGps.style.backgroundColor = "#856404";
         });
     }
 
@@ -166,10 +150,11 @@
             if (!cb.checked) {
                 sel.classList.remove('hidden');
                 txt.style.color = "#aaa";
-                if (sel.value === "Férias") f++;
-                else if (sel.value === "atestado") a++;
-                else if (sel.value === "Em Viagem") v++;
-                else if (sel.value === "Falta Justificada") j++;
+                const val = sel.value;
+                if (val === "Férias") f++;
+                else if (val === "atestado") a++;
+                else if (val === "Em Viagem") v++;
+                else if (val === "Falta Justificada") j++;
                 else faltas++;
             } else {
                 sel.classList.add('hidden');
@@ -186,18 +171,20 @@
     function enviarWhatsapp() {
         const modo = document.getElementById('modo-envio').value;
         const dataHoje = new Date().toLocaleDateString('pt-BR');
-        const locMsg = `📍 *Local:* ${dadosLocalizacao.endereco}\n🔗 *Link:* ${dadosLocalizacao.link}\n`;
+        
+        const locInfo = `📍 *Local:* ${dadosLocalizacao.endereco}\n` +
+                        `📊 *Status:* ${dadosLocalizacao.statusFrequencia}\n` +
+                        `🔗 *Link:* ${dadosLocalizacao.link}\n`;
 
         let msg = "";
 
         if (modo === "individual") {
             const nome = document.getElementById('select-individual').value;
             msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n` +
-                  `✅ *Empresa: Telejur*\n` +
-                  `Data: ${dataHoje}\n` +
-                  `Funcionário: _${nome}_\n` +
-                  `Status: ✔️ Presente\n\n` +
-                  locMsg;
+                  `🏢 *Empresa: Telejur*\n` +
+                  `📅 Data: ${dataHoje}\n` +
+                  `👤 Funcionário: _${nome}_\n\n` +
+                  locInfo;
         } else {
             let pres = [], fer = [], ate = [], via = [], jus = [], fal = [];
             equipe.forEach((nome, i) => {
@@ -216,11 +203,11 @@
 
             msg = `*LISTA DE FREQUÊNCIA TELEJUR*\n\n` +
                   `📅 Data: ${dataHoje}\n\n` +
-                  locMsg + `\n` +
+                  locInfo + `\n` +
                   `✔️ *Efetivo na planta:* ${pres.length}\n${pres.join('\n')}\n\n` +
                   `🌴 Férias: ${fer.length}\n` +
                   `🏥 Atestado: ${ate.length}\n` +
-                  `✈️ Em viagem: ${via.length}\n` +
+                  `✈️ Viagem: ${via.length}\n` +
                   `✅ Justificadas: ${jus.length}\n` +
                   `❌ Faltas: ${fal.length}`;
         }
