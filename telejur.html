@@ -1,114 +1,11 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequência Telejur - Oficial</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; }
-        
-        .card-status { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
-        .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
-        .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
-
-        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #f1f1f1; }
-        .item-info { display: flex; align-items: center; gap: 10px; }
-        .item-info input { transform: scale(1.3); cursor: pointer; }
-        .nome-func { font-size: 14px; color: #333; }
-        
-        select { font-size: 11px; border-radius: 5px; border: 1px solid #ccc; padding: 4px; color: #d9534f; background: #fff; font-weight: bold; }
-        .hidden { visibility: hidden; width: 0; position: absolute; }
-
-        button { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
-        button:hover { background-color: #128C7E; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>📋 Frequência Telejur</h2>
-
-    <div class="card-status">
-        <div class="status-box"><span id="count-ferias">0</span><label>Férias</label></div>
-        <div class="status-box"><span id="count-atestado">0</span><label>Atestado</label></div>
-        <div class="status-box"><span id="count-viagem">0</span><label>Viagem</label></div>
-        <div class="status-box"><span id="count-faltajust">0</span><label>F. Justif.</label></div>
-        <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
-    </div>
-
-    <div id="corpo-lista"></div>
-
-    <button onclick="enviarWhatsapp()">🚀 Enviar Relatório</button>
-</div>
-
-<script>
-    const equipe = [
-        "Adriano Nascimento", "Cezar Prado", "Deivison Aleidson", 
-        "Edenildo Rodrigues", "Francivaldo Costa", "Joelcinei Guimarães", 
-        "Jean Soares", "Lucas Santos", "Matheus Costa", 
-        "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
-    ];
-    
-    const listaDiv = document.getElementById('corpo-lista');
-
-    function carregarLista() {
-        listaDiv.innerHTML = "";
-        equipe.forEach((nome, i) => {
-            listaDiv.innerHTML += `
-                <div class="item-lista">
-                    <div class="item-info">
-                        <input type="checkbox" id="check-${i}" checked onchange="monitorar(${i})">
-                        <span class="nome-func" id="label-${i}">${nome}</span>
-                    </div>
-                    <select id="motivo-${i}" class="hidden" onchange="monitorar()">
-                        <option value="Falta sem justificativa">❌ Falta</option>
-                        <option value="atestado">🏥 Atestado</option>
-                        <option value="Férias">🌴 Férias</option>
-                        <option value="Em Viagem">✈️ Viagem</option>
-                        <option value="Falta Justificada">✅ Justificada</option>
-                    </select>
-                </div>
-            `;
-        });
-    }
-
-    function monitorar(index) {
-        let f = 0, a = 0, v = 0, j = 0, faltas = 0;
-        equipe.forEach((_, i) => {
-            const cb = document.getElementById(`check-${i}`);
-            const sel = document.getElementById(`motivo-${i}`);
-            const txt = document.getElementById(`label-${i}`);
-
-            if (!cb.checked) {
-                sel.classList.remove('hidden');
-                txt.style.color = "#aaa";
-                if (sel.value === "Férias") f++;
-                else if (sel.value === "atestado") a++;
-                else if (sel.value === "Em Viagem") v++;
-                else if (sel.value === "Falta Justificada") j++;
-                else faltas++;
-            } else {
-                sel.classList.add('hidden');
-                txt.style.color = "#000";
-            }
-        });
-        document.getElementById('count-ferias').innerText = f;
-        document.getElementById('count-atestado').innerText = a;
-        document.getElementById('count-viagem').innerText = v;
-        document.getElementById('count-faltajust').innerText = j;
-        document.getElementById('count-faltas').innerText = faltas;
-    }
-
-    function enviarWhatsapp() {
+function enviarWhatsapp() {
         const dataHoje = new Date().toLocaleDateString('pt-BR');
         let pres = [], fer = [], ate = [], via = [], jus = [], fal = [];
 
         equipe.forEach((nome, i) => {
             const cb = document.getElementById(`check-${i}`);
-            const nomeFormatado = `*${nome}*`; // Negrito para destaque
+            // Usando asteriscos (*) para Negrito, que é o destaque real do WhatsApp
+            const nomeFormatado = `*${nome}*`; 
             
             if (cb.checked) pres.push(nomeFormatado);
             else {
@@ -121,28 +18,15 @@
             }
         });
 
-        const divisor = "----------------------------";
-        
-        let msg = `LISTA DE FREQUÊNCIA - TELEJUR\n` +
-            `==========================\n\n` +
-            `STATUS: ✅ FINALIZADO\n\n` +
-            `DATA: ${dataHoje}\n` +
-            `${divisor}\n\n` +
-            `EFETIVO NA PLANTA: ${pres.length}\n` +
-            `${pres.join('\n')}\n\n` +
-            `${divisor}\n\n` +
-            `🌴 FÉRIAS (${fer.length})${fer.length ? ':\n' + fer.join('\n') : ''}\n\n` +
-            `🏥 ATESTADO (${ate.length})${ate.length ? ':\n' + ate.join('\n') : ''}\n\n` +
-            `✈️ EM VIAGEM (${via.length})${via.length ? ':\n' + via.join('\n') : ''}\n\n` +
-            `✅ FALTA JUSTIFICADA (${jus.length})${jus.length ? ':\n' + jus.join('\n') : ''}\n\n` +
-            `❌ FALTA SEM JUSTIF. (${fal.length})${fal.length ? ':\n' + fal.join('\n') : ''}\n\n` +
-            `${divisor}\n\n` +
-            `OBS: Nenhuma`;
+        let msg = `Segue Lista de frequência de hoje. Atentar nas observações.\n\n` +
+            `✅ *Empresa: Telejur*\n` +
+            `Data: ${dataHoje}\n\n` +
+            `✔️Efetivo na planta: ${pres.length}\n${pres.join('\n')}\n\n` +
+            `✔️Férias (${fer.length})${fer.length ? ': ' + fer.join(', ') : ''}\n\n` +
+            `✔️atestado (${ate.length})${ate.length ? ': ' + ate.join(', ') : ''}\n\n` +
+            `✔️Em viagem (${via.length})${via.length ? ': ' + via.join(', ') : ''}\n\n` +
+            `✔️Falta justificada (${jus.length})${jus.length ? ': ' + jus.join(', ') : ''}\n\n` +
+            `✔️Falta sem justificativa (${fal.length})${fal.length ? ': ' + fal.join(', ') : ''}`;
 
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
     }
-
-    carregarLista();
-</script>
-</body>
-</html>
