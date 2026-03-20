@@ -22,9 +22,8 @@
         select { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
         .hidden { display: none; }
 
-        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 13px; text-align: center; transition: 0.3s; }
+        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 13px; text-align: center; }
         button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
-        button.enviar:hover { background-color: #128C7E; }
         .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
     </style>
 </head>
@@ -36,10 +35,10 @@
     <label class="label-peq">MODO DE ENVIO:</label>
     <select id="modo-envio" onchange="alternarModo()">
         <option value="geral">Lista Geral (Equipe)</option>
-        <option value="individual">Formulário Individual (Validar Unidade)</option>
+        <option value="individual">Formulário Individual</option>
     </select>
 
-    <div id="status-gps" class="btn-gps hidden">⌛ Identificando unidade Alcoa...</div>
+    <div id="status-gps" class="btn-gps hidden">⌛ Validando Unidade...</div>
 
     <div id="campos-individual" class="hidden">
         <label class="label-peq">FUNCIONÁRIO:</label>
@@ -56,7 +55,7 @@
         <div id="corpo-lista"></div>
     </div>
 
-    <button id="btn-enviar" class="enviar" onclick="enviarWhatsapp()">🚀 Enviar para Mirielly</button>
+    <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar para Mirielly</button>
 </div>
 
 <script>
@@ -67,136 +66,118 @@
         "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
     ];
 
-    const unidadesAlcoa = [
-        { nome: "ALCOA - PORTO", lat: -2.155555, lon: -56.095555 },
-        { nome: "ALCOA - BENEFICIAMENTO", lat: -2.448888, lon: -56.170888 }
+    const pontosAlcoa = [
+        { nome: "ALCOA - PORTO", lat: -2.1555, lon: -56.0955 },
+        { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
     ];
-    
-    let dadosLocalizacao = { link: "", endereco: "Detectando...", statusFrequencia: "N/A", unidadeEspecifica: "Não validada" };
+
+    let dadosLoc = { link: "", endereco: "Não identificado", status: "Ausente", unidade: "Fora da Planta" };
 
     function carregarLista() {
         const listaDiv = document.getElementById('corpo-lista');
-        const selectIndividual = document.getElementById('select-individual');
-        listaDiv.innerHTML = "";
-        selectIndividual.innerHTML = "";
+        const selInd = document.getElementById('select-individual');
+        listaDiv.innerHTML = ""; selInd.innerHTML = "";
         equipe.forEach((nome, i) => {
             listaDiv.innerHTML += `
                 <div class="item-lista">
                     <div class="item-info">
                         <input type="checkbox" id="check-${i}" checked onchange="monitorar()">
-                        <span class="nome-func" id="label-${i}">${nome}</span>
+                        <span class="nome-func">${nome}</span>
                     </div>
-                    <select id="motivo-${i}" class="hidden" style="width: auto; margin-bottom: 0;" onchange="monitorar()">
-                        <option value="❌ Falta sem justificativa">❌ Falta</option>
-                        <option value="🏥 Atestado Médico">🏥 Atestado</option>
-                        <option value="🌴 Férias">🌴 Férias</option>
-                        <option value="✅ Falta Justificada">✅ Justificada</option>
+                    <select id="motivo-${i}" class="hidden" style="width: auto;" onchange="monitorar()">
+                        <option value="Falta sem justificativa">Falta sem justificativa</option>
+                        <option value="atestado">atestado</option>
+                        <option value="Férias">Férias</option>
+                        <option value="Em viagem">Em viagem</option>
+                        <option value="Falta justificada">Falta justificada</option>
                     </select>
                 </div>`;
-            selectIndividual.innerHTML += `<option value="${nome}">${nome}</option>`;
+            selInd.innerHTML += `<option value="${nome}">${nome}</option>`;
         });
     }
 
     function alternarModo() {
         const modo = document.getElementById('modo-envio').value;
-        const gpsDiv = document.getElementById('status-gps');
         document.getElementById('campos-geral').classList.toggle('hidden', modo === 'individual');
         document.getElementById('campos-individual').classList.toggle('hidden', modo === 'geral');
-
         if (modo === 'individual') {
-            gpsDiv.classList.remove('hidden');
-            obterLocalizacaoAuto();
+            document.getElementById('status-gps').classList.remove('hidden');
+            obterGps();
         } else {
-            gpsDiv.classList.add('hidden');
+            document.getElementById('status-gps').classList.add('hidden');
         }
     }
 
-    function checarUnidade(lat, lon) {
-        for (const unidade of unidadesAlcoa) {
-            const dist = Math.sqrt(Math.pow(lat - unidade.lat, 2) + Math.pow(lon - unidade.lon, 2));
-            if (dist < 0.009) return unidade.nome; 
-        }
-        return null;
-    }
-
-    async function obterLocalizacaoAuto() {
-        const statusGps = document.getElementById('status-gps');
-        if (!navigator.geolocation) return;
-
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            dadosLocalizacao.link = `https://www.google.com/maps?q=${lat},${lon}`;
-            const unidadeAlcoa = checarUnidade(lat, lon);
-            
-            if (unidadeAlcoa) {
-                dadosLocalizacao.unidadeEspecifica = unidadeAlcoa;
-                dadosLocalizacao.endereco = unidadeAlcoa;
-                dadosLocalizacao.statusFrequencia = "Presente";
-                statusGps.innerText = "✅ " + unidadeAlcoa;
-                statusGps.style.backgroundColor = "#075E54";
+    function obterGps() {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+            dadosLoc.link = `https://www.google.com/maps?q=${lat},${lon}`;
+            let unidadeEncontrada = null;
+            for (const p of pontosAlcoa) {
+                if (Math.sqrt(Math.pow(lat - p.lat, 2) + Math.pow(lon - p.lon, 2)) < 0.009) unidadeEncontrada = p.nome;
+            }
+            if (unidadeEncontrada) {
+                dadosLoc.unidade = unidadeEncontrada; dadosLoc.status = "Presente na planta";
+                document.getElementById('status-gps').innerText = "✅ " + unidadeEncontrada;
+                document.getElementById('status-gps').style.backgroundColor = "#075E54";
             } else {
-                dadosLocalizacao.unidadeEspecifica = "Fora da Planta";
-                dadosLocalizacao.statusFrequencia = "Ausente";
-                statusGps.innerText = "🛑 FORA DA PLANTA";
-                statusGps.style.backgroundColor = "#d9534f";
+                dadosLoc.unidade = "Fora da Planta"; dadosLoc.status = "Ausente";
+                document.getElementById('status-gps').innerText = "🛑 Fora da Planta";
+                document.getElementById('status-gps').style.backgroundColor = "#d9534f";
             }
         });
     }
 
     function monitorar() {
-        let f = 0, a = 0, j = 0, faltas = 0;
+        let f = 0, a = 0, j = 0, s = 0;
         equipe.forEach((_, i) => {
             const cb = document.getElementById(`check-${i}`);
             const sel = document.getElementById(`motivo-${i}`);
             if (!cb.checked) {
                 sel.classList.remove('hidden');
-                if (sel.value.includes("Férias")) f++;
-                else if (sel.value.includes("Atestado")) a++;
-                else if (sel.value.includes("Justificada")) j++;
-                else faltas++;
-            } else {
-                sel.classList.add('hidden');
-            }
+                if (sel.value === "Férias") f++;
+                else if (sel.value === "atestado") a++;
+                else if (sel.value === "Falta justificada") j++;
+                else s++;
+            } else { sel.classList.add('hidden'); }
         });
         document.getElementById('count-ferias').innerText = f;
         document.getElementById('count-atestado').innerText = a;
         document.getElementById('count-faltajust').innerText = j;
-        document.getElementById('count-faltas').innerText = faltas;
+        document.getElementById('count-faltas').innerText = s;
     }
 
     function enviarWhatsapp() {
         const modo = document.getElementById('modo-envio').value;
-        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        const data = new Date().toLocaleDateString('pt-BR');
         let msg = "";
 
         if (modo === "individual") {
             const nome = document.getElementById('select-individual').value;
-            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n` +
-                  `💼 *Empresa: Telejur*\n` +
-                  `📅 Data: ${dataHoje}\n` +
-                  `👤 Funcionário: _${nome}_\n` +
-                  `🏢 Unidade: ${dadosLocalizacao.unidadeEspecifica}\n` +
-                  `📊 Status: ${dadosLocalizacao.statusFrequencia}\n` +
-                  `🔗 Link GPS: ${dadosLocalizacao.link}`;
+            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\nData: ${data}\nFuncionário: _${nome}_\nStatus: ✔️ ${dadosLoc.status}\n\n📍 *Unidade:* ${dadosLoc.unidade}\n🔗 *Link:* ${dadosLoc.link}`;
         } else {
-            let presentes = [], ausentes = [];
+            let cat = { planta: [], ferias: [], atestado: [], viagem: [], just: [], falta: [] };
             equipe.forEach((nome, i) => {
                 const cb = document.getElementById(`check-${i}`);
-                if (cb.checked) {
-                    presentes.push(`_✔️ ${nome}_`);
-                } else {
-                    const motivo = document.getElementById(`motivo-${i}`).value;
-                    ausentes.push(`_👤 ${nome}_ -> *${motivo}*`);
+                if (cb.checked) cat.planta.push(`_${nome}_`);
+                else {
+                    const mot = document.getElementById(`motivo-${i}`).value;
+                    if (mot === "Férias") cat.ferias.push(`_${nome}_`);
+                    else if (mot === "atestado") cat.atestado.push(`_${nome}_`);
+                    else if (mot === "Em viagem") cat.viagem.push(`_${nome}_`);
+                    else if (mot === "Falta justificada") cat.just.push(`_${nome}_`);
+                    else cat.falta.push(`_${nome}_`);
                 }
             });
 
-            msg = `*LISTA DE FREQUÊNCIA EQUIPE TELEJUR*\n\n` +
-                  `📅 Data: ${dataHoje}\n\n` +
-                  `✅ *PRESENTES NA PLANTA (${presentes.length}):*\n${presentes.join('\n')}\n\n` +
-                  `⚠️ *AUSÊNCIAS / AFASTAMENTOS (${ausentes.length}):*\n${ausentes.join('\n')}`;
+            msg = `Segue Lista de frequência de hoje. Atentar nas observações.\n\n✅ *Empresa: Telejur*\nData: ${data}\n\n` +
+                  `✔️ *Efetivo na planta: ${cat.planta.length}*\n${cat.planta.join('\n')}\n\n` +
+                  `✔️ *Férias (${cat.ferias.length})*${cat.ferias.length > 0 ? ': ' + cat.ferias.join(', ') : ''}\n\n` +
+                  `✔️ *atestado (${cat.atestado.length})*${cat.atestado.length > 0 ? ': ' + cat.atestado.join(', ') : ''}\n\n` +
+                  `✔️ *Em viagem (${cat.viagem.length})*${cat.viagem.length > 0 ? ': ' + cat.viagem.join(', ') : ''}\n\n` +
+                  `✔️ *Falta justificada (${cat.just.length})*${cat.just.length > 0 ? ': ' + cat.just.join(', ') : ''}\n\n` +
+                  `✔️ *Falta sem justificativa (${cat.falta.length})*${cat.falta.length > 0 ? ': ' + cat.falta.join(', ') : ''}`;
         }
-
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
     }
 
