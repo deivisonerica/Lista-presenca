@@ -9,7 +9,7 @@
         .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
         h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; }
         
-        .card-status { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .card-status { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
         .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
         .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
         .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
@@ -56,7 +56,7 @@
         <div id="corpo-lista"></div>
     </div>
 
-    <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no grupo operacional</button>
+    <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
 </div>
 
 <script>
@@ -74,6 +74,7 @@
 
     let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "", hora: "" };
 
+    // Função de distância ajustada para precisão matemática
     function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
         const R = 6371000; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -134,7 +135,7 @@
             let plantaIdentificada = null;
             for (const p of pontosAlcoa) {
                 const dist = calcularDistanciaMetros(lat, lon, p.lat, p.lon);
-                if (dist <= 500) { 
+                if (dist <= 800) { // PRECISÃO DE 800 METROS
                     plantaIdentificada = p.nome;
                     break;
                 }
@@ -144,26 +145,22 @@
                 dadosLoc.unidadeMsg = plantaIdentificada;
                 dadosLoc.enderecoFormatado = plantaIdentificada;
                 dadosLoc.statusMsg = "Presente na Planta";
-                
                 statusGps.innerHTML = `✅ ${plantaIdentificada} - ${dadosLoc.hora}`;
                 statusGps.style.backgroundColor = "#075E54";
             } else {
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                     const data = await res.json();
-                    
                     const rua = data.address.road || data.address.pedestrian || "Via identificada";
-                    const bairro = data.address.suburb || data.address.neighbourhood || data.address.village || "Área Externa";
+                    const bairro = data.address.suburb || data.address.neighbourhood || "Área Externa";
 
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
                     dadosLoc.enderecoFormatado = `${rua}, ${bairro}`;
-                    dadosLoc.statusMsg = "Ausente da planta"; // STATUS ATUALIZADO
-                    
-                    statusGps.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}<br><span style="font-size:11px; font-weight:normal;">${rua}, ${bairro}</span>`;
+                    dadosLoc.statusMsg = "Ausente da planta";
+                    statusGps.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}<br><small>${rua}</small>`;
                     statusGps.style.backgroundColor = "#d9534f";
                 } catch (e) {
                     dadosLoc.unidadeMsg = "FORA DA PLANTA";
-                    dadosLoc.enderecoFormatado = "Localização Externa";
                     dadosLoc.statusMsg = "Ausente da planta";
                     statusGps.innerText = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`;
                 }
@@ -197,7 +194,7 @@
 
         if (modo === "individual") {
             const nome = document.getElementById('select-individual').value;
-            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Rua/Bairro:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
+            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Local:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
         } else {
             let cat = { planta: [], ferias: [], atestado: [], viagem: [], just: [], falta: [] };
             equipe.forEach((nome, i) => {
@@ -219,7 +216,7 @@
                   `✔️ *Atestado (${cat.atestado.length})*${cat.atestado.length > 0 ? ': ' + cat.atestado.join(', ') : ''}\n\n` +
                   `✔️ *Em viagem (${cat.viagem.length})*${cat.viagem.length > 0 ? ': ' + cat.viagem.join(', ') : ''}\n\n` +
                   `✔️ *Falta justificada (${cat.just.length})*${cat.just.length > 0 ? ': ' + cat.just.join(', ') : ''}\n\n` +
-                  `✔️ *Falta sem justificativa (${cat.falta.length})*${cat.falta.length > 0 ? ': ' + cat.falta.join(', ') : ''}`;
+                  `✔️ *Faltas (${cat.falta.length})*${cat.falta.length > 0 ? ': ' + cat.falta.join(', ') : ''}`;
         }
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
     }
