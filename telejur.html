@@ -14,7 +14,7 @@
         
         #loading { text-align: center; padding: 20px; color: #667; font-weight: bold; }
         
-        /* Contadores Ajustados */
+        /* Contadores */
         .card-status { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 15px; }
         .status-box { background: #f8f9fa; padding: 6px 2px; border-radius: 8px; border: 1px solid #dee2e6; text-align: center; }
         .status-box span { display: block; font-size: 14px; font-weight: bold; color: #075E54; }
@@ -28,30 +28,21 @@
         select, input { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 12px; background: #fff; margin-bottom: 10px; box-sizing: border-box; }
         .hidden { display: none !important; }
 
-        /* GPS CENTRALIZADO (CORREÇÃO) */
+        /* GPS Centralizado */
         .btn-gps { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center;
-            color: white; 
-            padding: 15px; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            margin: 0 auto 15px auto; 
-            width: 100%; 
-            min-height: 70px; 
-            background-color: #6c757d; 
-            box-sizing: border-box;
-            line-height: 1.4;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            color: white; padding: 15px; border-radius: 10px; font-weight: bold; margin: 0 auto 15px auto; 
+            width: 100%; min-height: 70px; background-color: #6c757d; box-sizing: border-box; line-height: 1.4;
         }
         
         button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 18px; font-size: 16px; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); }
         
-        /* Painel Admin */
-        #admin-area { border: 2px dashed #0056b3; padding: 15px; margin-top: 20px; border-radius: 10px; background: #f0f7ff; }
-        .lista-admin { margin-top: 10px; max-height: 150px; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 8px; }
+        /* Painel Admin Ajustado */
+        #admin-area { border: 2px solid #0056b3; padding: 15px; margin-top: 20px; border-radius: 10px; background: #f0f7ff; }
+        .admin-section { background: white; padding: 10px; border-radius: 8px; border: 1px solid #cce0ff; margin-bottom: 15px; }
+        .admin-section-title { font-size: 11px; font-weight: bold; color: #0056b3; margin-bottom: 10px; text-transform: uppercase; display: block; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        
+        .lista-admin { max-height: 150px; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 8px; }
         .item-admin { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 12px; align-items: center; }
         .btn-del { color: #d9534f; cursor: pointer; border: none; background: none; font-size: 16px; padding: 5px; }
     </style>
@@ -90,11 +81,19 @@
         <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
 
         <div id="admin-area" class="hidden">
-            <label style="font-size:11px; font-weight:bold; color:#0056b3;">GERENCIAR EQUIPE</label>
-            <input type="text" id="novo-nome" placeholder="Nome Usuário">
-            <input type="password" id="senha-admin" placeholder="Senha Admin">
-            <button onclick="addFunc()" style="width:100%; background:#0056b3; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:10px;">➕ ADICIONAR</button>
-            <div class="lista-admin" id="lista-admin-corpo"></div>
+            
+            <div class="admin-section">
+                <span class="admin-section-title">Adicionar Novo Colaborador</span>
+                <input type="text" id="novo-nome" placeholder="Nome do Colaborador">
+                <input type="password" id="senha-admin" placeholder="Confirmar Senha Admin">
+                <button onclick="addFunc()" style="width:100%; background:#0056b3; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">CADASTRAR</button>
+            </div>
+
+            <div class="admin-section">
+                <span class="admin-section-title">Colaboradores Ativos</span>
+                <div class="lista-admin" id="lista-admin-corpo"></div>
+            </div>
+            
         </div>
     </div>
 </div>
@@ -173,7 +172,7 @@
 
     async function delFunc(nome) {
         const senha = document.getElementById('senha-admin').value;
-        if(!senha) return alert("Digite a senha no campo Admin acima para excluir!");
+        if(!senha) return alert("Digite a senha no campo acima para confirmar a exclusão!");
         if(!confirm(`Excluir ${nome}?`)) return;
         const res = await fetch(`${API_URL}?acao=deletar&nome=${encodeURIComponent(nome)}&senha=${senha}`);
         const txt = await res.text();
