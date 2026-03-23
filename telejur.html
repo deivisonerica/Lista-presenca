@@ -5,90 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequência Telejur - Oficial</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; margin: 0; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; }
+        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; border-bottom: 2px solid #25D366; padding-bottom: 10px; }
         
-        .card-status { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
-        .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
+        #loading { text-align: center; padding: 20px; color: #667; font-weight: bold; }
+        
+        .card-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 20px; }
+        .status-box { background: #f8f9fa; padding: 8px 2px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
         .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
-        .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
+        .status-box label { font-size: 8px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
 
         .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #f1f1f1; }
         .item-info { display: flex; align-items: center; gap: 10px; }
         .item-info input { transform: scale(1.3); cursor: pointer; }
         .nome-func { font-size: 14px; color: #333; }
         
-        select { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
+        select, input[type="text"], input[type="password"] { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; box-sizing: border-box; }
         .hidden { display: none; }
 
         .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; min-height: 50px; }
         
-        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 18px; font-size: 16px; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); text-transform: uppercase; }
         .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
+
+        #admin-area { border: 2px dashed #075E54; padding: 15px; margin-top: 20px; border-radius: 10px; background: #e8f5e9; }
+        .btn-admin-toggle { background: none; border: none; color: #6c757d; font-size: 10px; cursor: pointer; float: right; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📋 Frequência Telejur</h2>
+    <button class="btn-admin-toggle" onclick="abrirPainelAdmin()">⚙️ ADMIN</button>
+    <div id="loading">⌛ Sincronizando com Telejur...</div>
 
-    <label class="label-peq">MODO DE ENVIO:</label>
-    <select id="modo-envio" onchange="alternarModo()">
-        <option value="geral">Lista Geral (Equipe)</option>
-        <option value="individual">Formulário Individual (Validar Local)</option>
-    </select>
+    <div id="conteudo" class="hidden">
+        <h2>Frequência Telejur</h2>
 
-    <div id="status-gps" class="btn-gps hidden">⌛ Localizando...</div>
+        <label class="label-peq">MODO DE ENVIO:</label>
+        <select id="modo-envio" onchange="alternarModo()">
+            <option value="geral">Lista Geral (Equipe)</option>
+            <option value="individual">Formulário Individual (Validar Local)</option>
+        </select>
 
-    <div id="campos-individual" class="hidden">
-        <label class="label-peq">FUNCIONÁRIO:</label>
-        <select id="select-individual"></select>
-    </div>
+        <div id="status-gps" class="btn-gps hidden">Aguardando GPS...</div>
 
-    <div id="campos-geral">
-        <div class="card-status">
-            <div class="status-box"><span id="count-ferias">0</span><label>Férias</label></div>
-            <div class="status-box"><span id="count-atestado">0</span><label>Atestado</label></div>
-            <div class="status-box"><span id="count-faltajust">0</span><label>F. Justif.</label></div>
-            <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
+        <div id="campos-individual" class="hidden">
+            <label class="label-peq">FUNCIONÁRIO:</label>
+            <select id="select-individual"></select>
         </div>
-        <div id="corpo-lista"></div>
-    </div>
 
-    <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
+        <div id="campos-geral">
+            <div class="card-status">
+                <div class="status-box"><span id="count-ferias">0</span><label>Férias</label></div>
+                <div class="status-box"><span id="count-atestado">0</span><label>Atest.</label></div>
+                <div class="status-box"><span id="count-viagem">0</span><label>Viagem</label></div>
+                <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
+            </div>
+            <div id="corpo-lista"></div>
+        </div>
+
+        <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
+
+        <div id="admin-area" class="hidden">
+            <label class="label-peq">CADASTRAR NOVO FUNCIONÁRIO</label>
+            <input type="text" id="novo-nome" placeholder="Nome completo">
+            <input type="password" id="senha-admin" placeholder="Senha Admin">
+            <button onclick="addFunc()" style="width:100%; background:#075E54; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;">➕ Incluir na Planilha</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const equipe = [
-        "Adriano Nascimento", "Cezar Prado", "Deivison Aleidson", 
-        "Edenildo Rodrigues", "Francivaldo Costa", "Joelcinei Guimarães", 
-        "Jean Soares", "Lucas Santos", "Matheus Costa", 
-        "Welyton Pereira", "Ruan Barros", "Rafael Gonçalves"
-    ];
+    const API_URL = "https://script.google.com/macros/s/AKfycbxcDhXRYVo_Nn3VkFzHg9cq_rqUJZ1Ll9PcQzoIeOgt5VHxaQot1noJbyg5nKJSg6yW/exec";
+    let equipe = [];
+    let dadosLoc = { link: "", unidade: "Não Identificado", hora: "" };
 
-    const pontosAlcoa = [
-        { nome: "ALCOA - PORTO", lat: -2.1677, lon: -56.1017 },
-        { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
-    ];
-
-    let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "", hora: "" };
-
-    function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
-        const R = 6371000; 
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+    // 1. BUSCAR NOMES DA PLANILHA AO CARREGAR
+    async function carregarEquipe() {
+        try {
+            const response = await fetch(API_URL + "?acao=ler");
+            equipe = await response.json();
+            renderizarLista();
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('conteudo').classList.remove('hidden');
+        } catch (error) {
+            document.getElementById('loading').innerText = "❌ Erro ao carregar dados. Verifique a API.";
+        }
     }
 
-    function carregarLista() {
+    function renderizarLista() {
         const listaDiv = document.getElementById('corpo-lista');
         const selInd = document.getElementById('select-individual');
         listaDiv.innerHTML = ""; selInd.innerHTML = "";
+        
         equipe.forEach((nome, i) => {
             listaDiv.innerHTML += `
                 <div class="item-lista">
@@ -96,16 +106,39 @@
                         <input type="checkbox" id="check-${i}" checked onchange="monitorar()">
                         <span class="nome-func">${nome}</span>
                     </div>
-                    <select id="motivo-${i}" class="hidden" style="width: auto;" onchange="monitorar()">
-                        <option value="Falta sem justificativa">Falta sem justificativa</option>
-                        <option value="Atestado">Atestado</option>
+                    <select id="motivo-${i}" class="hidden" style="width: auto; margin:0; padding:5px; font-size:11px;" onchange="monitorar()">
                         <option value="Férias">Férias</option>
+                        <option value="Atestado">Atestado</option>
                         <option value="Em viagem">Em viagem</option>
-                        <option value="Falta justificada">Falta justificada</option>
+                        <option value="Falta">Falta</option>
                     </select>
                 </div>`;
             selInd.innerHTML += `<option value="${nome}">${nome}</option>`;
         });
+    }
+
+    // 2. ADICIONAR NOVO FUNCIONÁRIO NA PLANILHA
+    async function addFunc() {
+        const nome = document.getElementById('novo-nome').value.trim();
+        const senha = document.getElementById('senha-admin').value;
+        if(!nome) return alert("Digite o nome!");
+
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loading').innerText = "⌛ Salvando na Planilha...";
+        
+        try {
+            const res = await fetch(`${API_URL}?acao=add&nome=${encodeURIComponent(nome)}&senha=${senha}`);
+            const txt = await res.text();
+            if(txt === "OK") {
+                alert("Sucesso! Nome adicionado à planilha.");
+                location.reload();
+            } else {
+                alert("Erro: " + txt);
+                document.getElementById('loading').classList.add('hidden');
+            }
+        } catch (e) {
+            alert("Erro na conexão.");
+        }
     }
 
     function alternarModo() {
@@ -120,109 +153,61 @@
         }
     }
 
-    async function obterGps() {
-        const statusGps = document.getElementById('status-gps');
-        if (!navigator.geolocation) return;
-
-        navigator.geolocation.getCurrentPosition(async (pos) => {
+    function obterGps() {
+        const btn = document.getElementById('status-gps');
+        navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude; 
             const lon = pos.coords.longitude;
-            const agora = new Date();
-            dadosLoc.hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            
-            // Link corrigido para Google Maps
+            dadosLoc.hora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
             dadosLoc.link = `https://www.google.com/maps?q=${lat},${lon}`;
-            
-            let plantaIdentificada = null;
-            for (const p of pontosAlcoa) {
-                const dist = calcularDistanciaMetros(lat, lon, p.lat, p.lon);
-                if (dist <= 800) { 
-                    plantaIdentificada = p.nome;
-                    break;
-                }
-            }
-
-            if (plantaIdentificada) {
-                dadosLoc.unidadeMsg = plantaIdentificada;
-                dadosLoc.enderecoFormatado = plantaIdentificada;
-                dadosLoc.statusMsg = "Presente na Planta";
-                statusGps.innerHTML = `✅ ${plantaIdentificada} - ${dadosLoc.hora}`;
-                statusGps.style.backgroundColor = "#075E54";
-            } else {
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-                    const data = await res.json();
-                    const rua = data.address.road || data.address.pedestrian || "Via identificada";
-                    const bairro = data.address.suburb || data.address.neighbourhood || "Área Externa";
-
-                    dadosLoc.unidadeMsg = "FORA DA PLANTA";
-                    dadosLoc.enderecoFormatado = `${rua}, ${bairro}`;
-                    dadosLoc.statusMsg = "Ausente da planta";
-                    statusGps.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}<br><small>${rua}</small>`;
-                    statusGps.style.backgroundColor = "#d9534f";
-                } catch (e) {
-                    dadosLoc.unidadeMsg = "FORA DA PLANTA";
-                    dadosLoc.statusMsg = "Ausente da planta";
-                    statusGps.innerText = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`;
-                }
-            }
-        }, null, { enableHighAccuracy: true });
+            btn.innerHTML = `✅ Localizado às ${dadosLoc.hora}`;
+            btn.style.backgroundColor = "#075E54";
+        }, null, {enableHighAccuracy: true});
     }
 
     function monitorar() {
-        let f = 0, a = 0, j = 0, s = 0;
+        let f=0, a=0, v=0, s=0;
         equipe.forEach((_, i) => {
             const cb = document.getElementById(`check-${i}`);
             const sel = document.getElementById(`motivo-${i}`);
-            if (!cb.checked) {
+            if(!cb.checked) {
                 sel.classList.remove('hidden');
-                if (sel.value === "Férias") f++;
-                else if (sel.value === "Atestado") a++;
-                else if (sel.value === "Falta justificada") j++;
+                if(sel.value === "Férias") f++;
+                else if(sel.value === "Atestado") a++;
+                else if(sel.value === "Em viagem") v++;
                 else s++;
             } else { sel.classList.add('hidden'); }
         });
         document.getElementById('count-ferias').innerText = f;
         document.getElementById('count-atestado').innerText = a;
-        document.getElementById('count-faltajust').innerText = j;
+        document.getElementById('count-viagem').innerText = v;
         document.getElementById('count-faltas').innerText = s;
+    }
+
+    function abrirPainelAdmin() {
+        const senha = prompt("Senha Admin:");
+        if(senha === "123") document.getElementById('admin-area').classList.toggle('hidden');
     }
 
     function enviarWhatsapp() {
         const modo = document.getElementById('modo-envio').value;
         const data = new Date().toLocaleDateString('pt-BR');
-        let msg = "";
+        let msg = `*FREQUÊNCIA TELEJUR*\n📅 Data: ${data}\n\n`;
 
         if (modo === "individual") {
-            const nome = document.getElementById('select-individual').value;
-            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Local:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
+            msg += `👤 Funcionário: ${document.getElementById('select-individual').value}\n⏰ Hora: ${dadosLoc.hora}\n📍 Mapa: ${dadosLoc.link}`;
         } else {
-            let cat = { planta: [], ferias: [], atestado: [], viagem: [], just: [], falta: [] };
+            let planta = [], ausentes = [];
             equipe.forEach((nome, i) => {
-                const cb = document.getElementById(`check-${i}`);
-                if (cb.checked) cat.planta.push(`_${nome}_`);
-                else {
-                    const mot = document.getElementById(`motivo-${i}`).value;
-                    if (mot === "Férias") cat.ferias.push(`_${nome}_`);
-                    else if (mot === "Atestado") cat.atestado.push(`_${nome}_`);
-                    else if (mot === "Em viagem") cat.viagem.push(`_${nome}_`);
-                    else if (mot === "Falta justificada") cat.just.push(`_${nome}_`);
-                    else cat.falta.push(`_${nome}_`);
-                }
+                if(document.getElementById(`check-${i}`).checked) planta.push(`- _${nome}_`);
+                else ausentes.push(`- _${nome}_ (*${document.getElementById(`motivo-${i}`).value}*)`);
             });
-
-            msg = `Segue Lista de frequência de hoje.\n\n✅ *Empresa: Telejur*\nData: ${data}\n\n` +
-                  `✔️ *Efetivo na planta: ${cat.planta.length}*\n${cat.planta.join('\n')}\n\n` +
-                  `✔️ *Férias (${cat.ferias.length})*${cat.ferias.length > 0 ? ': ' + cat.ferias.join(', ') : ''}\n\n` +
-                  `✔️ *Atestado (${cat.atestado.length})*${cat.atestado.length > 0 ? ': ' + cat.atestado.join(', ') : ''}\n\n` +
-                  `✔️ *Em viagem (${cat.viagem.length})*${cat.viagem.length > 0 ? ': ' + cat.viagem.join(', ') : ''}\n\n` +
-                  `✔️ *Falta justificada (${cat.just.length})*${cat.just.length > 0 ? ': ' + cat.just.join(', ') : ''}\n\n` +
-                  `✔️ *Faltas (${cat.falta.length})*${cat.falta.length > 0 ? ': ' + cat.falta.join(', ') : ''}`;
+            msg += `✅ *NA PLANTA (${planta.length}):*\n${planta.join('\n')}\n\n❌ *AUSÊNCIAS:* \n${ausentes.join('\n') || "_Nenhuma_"}`;
         }
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
     }
 
-    window.onload = carregarLista;
+    window.onload = carregarEquipe;
 </script>
 </body>
 </html>
