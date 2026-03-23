@@ -5,146 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequência Telejur - Oficial</title>
     <style>
+        :root { --verde-telejur: #075E54; --azul-admin: #0056b3; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; margin: 0; }
         .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; }
-        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; margin-top: 35px; }
         
-        /* Ajuste de Alinhamento da Lista Principal */
+        /* ALINHAMENTO DA LISTA (CORREÇÃO DEFINITIVA) */
         .item-lista { 
-            display: flex; 
+            display: grid; 
+            grid-template-columns: 1fr auto; /* Nome ocupa o espaço disponível, Select ocupa apenas o necessário */
             align-items: center; 
-            justify-content: space-between; /* Mantém nome na esquerda e select na direita */
-            padding: 12px 5px; 
+            gap: 10px;
+            padding: 12px 0; 
             border-bottom: 1px solid #f1f1f1;
-            width: 100%;
-            box-sizing: border-box;
         }
-        .item-info { display: flex; align-items: center; gap: 12px; flex: 1; }
-        .item-info input { transform: scale(1.3); cursor: pointer; margin: 0; }
+        .item-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
         .nome-func { font-size: 14px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
+        /* Estilos Gerais */
+        h2 { color: var(--verde-telejur); text-align: center; margin: 35px 0 20px; font-size: 22px; }
         .card-status { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
         .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
-        .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
+        .status-box span { display: block; font-size: 16px; font-weight: bold; color: var(--verde-telejur); }
         .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
 
-        select, input { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; box-sizing: border-box; }
+        select, input { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; box-sizing: border-box; }
         .hidden { display: none !important; }
 
-        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; min-height: 50px; }
-        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
-        .btn-admin-top { background: #0056b3; border: none; color: white; font-size: 10px; padding: 8px 15px; border-radius: 50px; cursor: pointer; position: absolute; top: 15px; right: 15px; font-weight: bold; text-transform: uppercase; }
+        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        .btn-admin-top { background: var(--azul-admin); border: none; color: white; font-size: 10px; padding: 8px 15px; border-radius: 50px; cursor: pointer; position: absolute; top: 15px; right: 15px; font-weight: bold; }
         
-        /* Seção Admin Design Anterior */
-        #admin-area { border: 2px dashed #0056b3; padding: 20px; margin-top: 10px; border-radius: 12px; background: #f9fcff; }
-        .btn-sair { background: #d9534f; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
-        .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
-
-        #tela-final { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0056b3; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; padding: 20px; box-sizing: border-box; }
+        /* DESIGN SEÇÃO ADMIN (LIMPO) */
+        #admin-area { border: 2px dashed var(--azul-admin); padding: 20px; border-radius: 12px; background: #f9fcff; margin-top: 10px; }
+        .btn-sair { background: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .label-peq { font-size: 12px; font-weight: bold; color: var(--verde-telejur); display: block; margin-bottom: 5px; }
+        
+        /* Estilo da lista dentro do admin */
+        .admin-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; background: white; margin-bottom: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div id="tela-final" class="hidden">
-    <h1 style="font-size: 50px;">✅</h1>
-    <h1 id="msg-agradecimento"></h1>
-    <p>Relatório enviado com sucesso!</p>
-    <button onclick="window.location.reload()" style="background:white; color:#0056b3; border:none; padding:12px 30px; border-radius:10px; font-weight:bold; margin-top:20px;">VOLTAR</button>
-</div>
-
 <div class="container">
-    <button id="btn-admin-trigger" class="btn-admin-top" onclick="abrirPainelAdmin()">⚙️ Admin</button>
+    <button id="btn-admin-trigger" class="btn-admin-top" onclick="abrirPainelAdmin()">⚙️ GESTÃO</button>
     
-    <div id="secao-usuario">
+    <div id="visao-usuario">
         <h2>📋 Frequência Telejur</h2>
-        <label class="label-peq">MODO DE ENVIO:</label>
-        <select id="modo-envio" onchange="alternarModo()">
+        
+        <label class="label-peq">MODO:</label>
+        <select id="modo-envio" onchange="alternarModo()" style="margin-bottom: 15px;">
             <option value="geral">Lista Geral (Equipe)</option>
             <option value="individual">Ponto Individual (GPS)</option>
         </select>
 
-        <div id="status-gps" class="btn-gps hidden">⌛ Localizando...</div>
+        <div id="status-gps" class="hidden" style="background:#6c757d; color:white; padding:12px; border-radius:8px; text-align:center; margin-bottom:15px; font-size:14px; font-weight:bold;">Buscando GPS...</div>
+
         <div id="campos-individual" class="hidden">
             <label class="label-peq">FUNCIONÁRIO:</label>
-            <select id="select-individual"></select>
+            <select id="select-individual" style="margin-bottom: 15px;"></select>
         </div>
 
         <div id="campos-geral">
             <div class="card-status">
                 <div class="status-box"><span id="count-ferias">0</span><label>Férias</label></div>
                 <div class="status-box"><span id="count-atestado">0</span><label>Atestado</label></div>
-                <div class="status-box"><span id="count-faltajust">0</span><label>F. Justif.</label></div>
+                <div class="status-box"><span id="count-faltajust">0</span><label>Justific.</label></div>
                 <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
             </div>
             <div id="corpo-lista"></div>
         </div>
-        <button id="btn-enviar-wa" class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
+        <button id="btn-enviar-wa" class="enviar" onclick="enviarWhatsapp()">🚀 ENVIAR WHATSAPP</button>
     </div>
 
     <div id="admin-area" class="hidden">
-        <h3 style="color: #0056b3; text-align: center; margin-top: 0;">Gestão de Colaboradores</h3>
-        <input type="text" id="novo-nome" placeholder="Nome Completo">
-        <input type="password" id="senha-admin" placeholder="Senha Admin">
-        <button onclick="addFunc()" style="width:100%; background:#0056b3; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold;">CADASTRAR</button>
+        <h3 style="color: var(--azul-admin); text-align: center; margin-top: 0;">Painel Administrativo</h3>
         
-        <label class="label-peq" style="margin-top: 20px;">LISTA DE EQUIPE:</label>
-        <div id="lista-admin-corpo" style="max-height:200px; overflow-y:auto; background:white; border: 1px solid #eee; border-radius: 8px; padding: 5px;"></div>
+        <label class="label-peq">NOVO COLABORADOR:</label>
+        <input type="text" id="novo-nome" placeholder="Nome Completo" style="margin-bottom: 8px;">
+        <input type="password" id="senha-admin" placeholder="Senha do Sistema" style="margin-bottom: 8px;">
+        <button onclick="addFunc()" style="width:100%; background:var(--azul-admin); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">CADASTRAR</button>
         
-        <button class="btn-sair" onclick="sairAdmin()">SAIR DO ADMIN</button>
+        <label class="label-peq" style="margin-top: 20px;">REMOVER COLABORADORES:</label>
+        <div id="lista-admin-corpo" style="max-height:250px; overflow-y:auto; margin-top:10px;"></div>
+        
+        <button class="btn-sair" onclick="sairAdmin()">🚪 FECHAR E VOLTAR</button>
     </div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxcDhXRYVo_Nn3VkFzHg9cq_rqUJZ1Ll9PcQzoIeOgt5VHxaQot1noJbyg5nKJSg6yW/exec";
     let equipe = [];
-    let dadosLoc = { link: "", unidade: "FORA DA PLANTA", hora: "" };
 
     async function carregarDados() {
         try {
             const res = await fetch(API_URL + "?acao=ler");
             equipe = await res.json();
-            renderizarInterface();
-            document.getElementById('secao-usuario').classList.remove('hidden');
-        } catch (e) { alert("Erro ao carregar lista."); }
+            renderizar();
+        } catch (e) { console.error("Erro de conexão"); }
     }
 
-    function renderizarInterface() {
-        const listaG = document.getElementById('corpo-lista');
-        const selI = document.getElementById('select-individual');
-        const listaA = document.getElementById('lista-admin-corpo');
-        listaG.innerHTML = ""; selI.innerHTML = ""; listaA.innerHTML = "";
+    function renderizar() {
+        const listaUsuario = document.getElementById('corpo-lista');
+        const selIndiv = document.getElementById('select-individual');
+        const listaAdmin = document.getElementById('lista-admin-corpo');
+        
+        listaUsuario.innerHTML = ""; selIndiv.innerHTML = ""; listaAdmin.innerHTML = "";
 
         equipe.forEach((nome, i) => {
-            listaG.innerHTML += `
+            // Lista Usuário - Alinhamento Grid
+            listaUsuario.innerHTML += `
                 <div class="item-lista">
                     <div class="item-info">
                         <input type="checkbox" id="check-${i}" checked onchange="monitorar()">
                         <span class="nome-func">${nome}</span>
                     </div>
-                    <select id="motivo-${i}" class="hidden" style="width: auto; margin-bottom: 0;" onchange="monitorar()">
-                        <option value="Falta sem justificativa">Falta s/ Just.</option>
+                    <select id="motivo-${i}" class="hidden" style="width: 110px; padding: 5px; font-size: 11px;" onchange="monitorar()">
+                        <option value="Falta sem justificativa">Falta s/ J.</option>
                         <option value="Atestado">Atestado</option>
                         <option value="Férias">Férias</option>
-                        <option value="Em viagem">Em viagem</option>
-                        <option value="Falta justificada">Falta Just.</option>
+                        <option value="Em viagem">Viagem</option>
+                        <option value="Falta justificada">Justificada</option>
                     </select>
                 </div>`;
-            selI.innerHTML += `<option value="${nome}">${nome}</option>`;
-            listaA.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; font-size:13px;"><span>${nome}</span><span style="color:red; cursor:pointer; font-weight:bold;" onclick="delFunc('${nome}')">EXCLUIR</span></div>`;
+            
+            selIndiv.innerHTML += `<option value="${nome}">${nome}</option>`;
+            
+            // Lista Admin - Somente Gerência
+            listaAdmin.innerHTML += `
+                <div class="admin-item">
+                    <span>${nome}</span>
+                    <button onclick="delFunc('${nome}')" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">Remover</button>
+                </div>`;
         });
         monitorar();
     }
 
     function abrirPainelAdmin() {
         if(prompt("Senha:") === "123") {
-            document.getElementById('secao-usuario').classList.add('hidden');
+            document.getElementById('visao-usuario').classList.add('hidden');
             document.getElementById('admin-area').classList.remove('hidden');
             document.getElementById('btn-admin-trigger').classList.add('hidden');
         }
     }
 
     function sairAdmin() {
-        document.getElementById('secao-usuario').classList.remove('hidden');
+        document.getElementById('visao-usuario').classList.remove('hidden');
         document.getElementById('admin-area').classList.add('hidden');
         document.getElementById('btn-admin-trigger').classList.remove('hidden');
     }
@@ -152,32 +156,22 @@
     async function addFunc() {
         const n = document.getElementById('novo-nome').value;
         const s = document.getElementById('senha-admin').value;
-        if(!n || !s) return alert("Preencha o nome e a senha!");
-        
-        const btn = event.target;
-        btn.innerText = "⌛ AGUARDE...";
-        btn.disabled = true;
-
+        if(!n || !s) return alert("Preencha os campos!");
         await fetch(`${API_URL}?acao=add&nome=${encodeURIComponent(n)}&senha=${s}`);
-        
-        // Em vez de recarregar a página, recarregamos apenas os dados
-        await carregarDados();
         document.getElementById('novo-nome').value = "";
-        btn.innerText = "CADASTRAR";
-        btn.disabled = false;
-        alert("Colaborador adicionado com sucesso!");
+        await carregarDados();
+        alert("Adicionado!");
     }
 
     async function delFunc(nome) {
         const s = document.getElementById('senha-admin').value;
-        if(!s) return alert("Digite a senha admin!");
-        if(confirm(`Excluir ${nome}?`)) {
+        if(!s) return alert("Digite a senha admin no campo acima!");
+        if(confirm(`Remover ${nome}?`)) {
             await fetch(`${API_URL}?acao=deletar&nome=${encodeURIComponent(nome)}&senha=${s}`);
             await carregarDados();
         }
     }
 
-    // Mantendo funções de GPS e Monitoramento
     function monitorar() {
         let f=0, a=0, j=0, s=0;
         equipe.forEach((_, i) => {
@@ -185,9 +179,10 @@
             const sel = document.getElementById(`motivo-${i}`);
             if (cb && !cb.checked) {
                 sel.classList.remove('hidden');
-                if (sel.value === "Férias") f++;
-                else if (sel.value === "Atestado") a++;
-                else if (sel.value === "Falta justificada") j++;
+                const v = sel.value;
+                if (v === "Férias") f++;
+                else if (v === "Atestado") a++;
+                else if (v === "Falta justificada") j++;
                 else s++;
             } else if(sel) { sel.classList.add('hidden'); }
         });
@@ -201,40 +196,18 @@
         const m = document.getElementById('modo-envio').value;
         document.getElementById('campos-geral').classList.toggle('hidden', m === 'individual');
         document.getElementById('campos-individual').classList.toggle('hidden', m === 'geral');
-        if (m === 'individual') { document.getElementById('status-gps').classList.remove('hidden'); obterGps(); }
-        else { document.getElementById('status-gps').classList.add('hidden'); }
-    }
-
-    function obterGps() {
-        const btn = document.getElementById('status-gps');
-        btn.innerHTML = "⌛ Validando GPS...";
-        navigator.geolocation.getCurrentPosition(pos => {
-            const lat = pos.coords.latitude; const lon = pos.coords.longitude;
-            dadosLoc.hora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-            dadosLoc.link = `http://maps.google.com/?q=${lat},${lon}`;
-            dadosLoc.unidade = "LOCALIZADO"; // Lógica de Alcoa simplificada aqui
-            btn.innerHTML = `📍 LOCALIZADO - ${dadosLoc.hora}`;
-            btn.style.backgroundColor = "#075E54";
-        }, null, {enableHighAccuracy: true});
+        document.getElementById('status-gps').classList.toggle('hidden', m === 'geral');
     }
 
     function enviarWhatsapp() {
-        const modo = document.getElementById('modo-envio').value;
         const data = new Date().toLocaleDateString('pt-BR');
-        let msg = "";
-        if (modo === "individual") {
-            const n = document.getElementById('select-individual').value;
-            msg = `*FREQUÊNCIA INDIVIDUAL*\n👤 Nome: ${n}\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n🔗 GPS: ${dadosLoc.link}`;
-        } else {
-            let p=[], s=[];
-            equipe.forEach((nome, i) => {
-                if (document.getElementById(`check-${i}`).checked) p.push(`- ${nome}`);
-                else s.push(`- ${nome} (${document.getElementById(`motivo-${i}`).value})`);
-            });
-            msg = `*FREQUÊNCIA TELEJUR*\n📅 Data: ${data}\n\n✅ PRESENTES:\n${p.join('\n')}\n\n❌ AUSÊNCIAS:\n${s.join('\n') || 'Nenhuma'}`;
-        }
+        let msg = `*FREQUÊNCIA TELEJUR*\nData: ${data}\n\n`;
+        equipe.forEach((nome, i) => {
+            const cb = document.getElementById(`check-${i}`);
+            if (cb.checked) msg += `✅ ${nome}\n`;
+            else msg += `❌ ${nome} (${document.getElementById(`motivo-${i}`).value})\n`;
+        });
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
-        document.getElementById('tela-final').classList.remove('hidden');
     }
 
     window.onload = carregarDados;
