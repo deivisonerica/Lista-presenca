@@ -5,81 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequência Telejur - Oficial</title>
     <style>
-        :root {
-            --primary-blue: #0056b3;
-            --bg-light: #f4f7f9;
-            --text-main: #33475b;
-            --success-green: #25D366;
-        }
-
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-light); padding: 15px; display: flex; justify-content: center; margin: 0; }
-        .container { width: 100%; max-width: 480px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        /* CSS BASE DO SEU CÓDIGO APROVADO */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; margin: 0; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; }
+        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; margin-top: 35px; }
         
-        h2 { color: var(--primary-blue); text-align: center; margin: 45px 0 20px 0; font-size: 18px; border: 2px solid var(--primary-blue); padding: 12px; border-radius: 12px; text-transform: uppercase; background: #f0f7ff; }
-        
-        .btn-admin-top { background: var(--primary-blue); border: none; color: white; font-size: 10px; padding: 8px 15px; border-radius: 50px; cursor: pointer; position: absolute; top: 20px; right: 20px; font-weight: bold; text-transform: uppercase; z-index: 10; }
+        .card-status { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+        .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
+        .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
+        .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
 
-        /* CORREÇÃO DEFINITIVA DE ALINHAMENTO */
-        .item-lista { 
-            display: flex; 
-            align-items: center; 
-            justify-content: flex-start; /* Alinha tudo no início da linha */
-            padding: 12px 5px; 
-            border-bottom: 1px solid #f0f3f5; 
-            gap: 15px; /* Espaço fixo entre checkbox e nome */
-        }
-        .item-info { display: flex; align-items: center; gap: 15px; flex: 1; }
-        .nome-func { font-size: 14px; color: var(--text-main); font-weight: 500; text-align: left; }
+        /* ALINHAMENTO APROVADO */
+        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #f1f1f1; }
+        .item-info { display: flex; align-items: center; gap: 10px; }
+        .item-info input { transform: scale(1.3); cursor: pointer; }
+        .nome-func { font-size: 14px; color: #333; }
         
-        .motivo-select { width: 130px; padding: 5px; font-size: 11px; border-radius: 8px; border: 1px solid #dce4ec; margin-left: auto; }
-        select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 15px; }
-
-        /* GPS Box */
-        .btn-gps { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; padding: 15px; border-radius: 12px; font-weight: bold; margin-bottom: 15px; min-height: 70px; background: #6c757d; line-height: 1.3; }
-
-        /* Tela Final */
-        #tela-final { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary-blue); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; padding: 20px; }
-        
+        select { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; background: #fff; margin-bottom: 10px; }
         .hidden { display: none !important; }
-        button.enviar { width: 100%; background: var(--success-green); color: white; border: none; padding: 18px; font-size: 16px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(37,211,102,0.2); }
+
+        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; min-height: 50px; }
+        
+        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
+
+        /* NOVOS ELEMENTOS */
+        .btn-admin-top { background: #0056b3; border: none; color: white; font-size: 10px; padding: 8px 15px; border-radius: 50px; cursor: pointer; position: absolute; top: 15px; right: 15px; font-weight: bold; text-transform: uppercase; }
+        
+        #tela-final { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0056b3; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; padding: 20px; box-sizing: border-box; }
+        #admin-area { border: 2px solid #0056b3; padding: 15px; margin-top: 20px; border-radius: 12px; background: #f9fcff; }
     </style>
 </head>
 <body>
 
 <div id="tela-final" class="hidden">
-    <h1 style="font-size: 50px;">✅</h1>
+    <h1 style="font-size: 50px; margin: 0;">✅</h1>
     <h1 id="msg-agradecimento"></h1>
-    <p>Registro realizado com sucesso!</p>
-    <button onclick="window.location.reload()" style="background:white; color:var(--primary-blue); border:none; padding:12px 30px; border-radius:10px; font-weight:bold; margin-top:20px;">VOLTAR</button>
+    <p>Registro enviado com sucesso!</p>
+    <button onclick="window.location.reload()" style="background:white; color:#0056b3; border:none; padding:12px 30px; border-radius:10px; font-weight:bold; margin-top:20px; cursor:pointer;">NOVO REGISTRO</button>
 </div>
 
 <div class="container">
-    <button class="btn-admin-top" onclick="abrirPainelAdmin()">⚙️ Admin</button>
+    <button id="btn-admin-trigger" class="btn-admin-top" onclick="abrirPainelAdmin()">⚙️ Admin</button>
     <div id="loading">⌛ Sincronizando dados...</div>
 
     <div id="conteudo" class="hidden">
-        <h2>Frequência Telejur</h2>
+        <h2>📋 Frequência Telejur</h2>
 
+        <label class="label-peq">MODO DE ENVIO:</label>
         <select id="modo-envio" onchange="alternarModo()">
             <option value="geral">Lista Geral (Equipe)</option>
-            <option value="individual">Ponto Individual (GPS)</option>
+            <option value="individual">Formulário Individual (Validar Local)</option>
         </select>
 
-        <div id="status-gps" class="btn-gps hidden">Buscando GPS...</div>
+        <div id="status-gps" class="btn-gps hidden">⌛ Localizando...</div>
 
         <div id="campos-individual" class="hidden">
+            <label class="label-peq">FUNCIONÁRIO:</label>
             <select id="select-individual"></select>
         </div>
 
-        <div id="campos-geral"><div id="corpo-lista"></div></div>
+        <div id="campos-geral">
+            <div class="card-status">
+                <div class="status-box"><span id="count-ferias">0</span><label>Férias</label></div>
+                <div class="status-box"><span id="count-atestado">0</span><label>Atestado</label></div>
+                <div class="status-box"><span id="count-faltajust">0</span><label>F. Justif.</label></div>
+                <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
+            </div>
+            <div id="corpo-lista"></div>
+        </div>
 
-        <button id="btn-enviar-wa" class="enviar" onclick="enviarTudo()">🚀 ENVIAR NO WHATSAPP</button>
+        <button id="btn-enviar-wa" class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
 
-        <div id="admin-area" class="hidden" style="border: 2px solid var(--primary-blue); padding: 15px; margin-top: 20px; border-radius: 12px; background: #f9fcff;">
-            <p style="font-weight: bold; color: var(--primary-blue); font-size: 12px;">GERENCIAR EQUIPE</p>
-            <input type="text" id="novo-nome" placeholder="Novo Nome">
+        <div id="admin-area" class="hidden">
+            <p style="font-weight: bold; color: #0056b3; font-size: 12px; margin-bottom: 10px;">GERENCIAR EQUIPE</p>
+            <input type="text" id="novo-nome" placeholder="Nome Completo">
             <input type="password" id="senha-admin" placeholder="Senha Admin">
-            <button onclick="addFunc()" style="width:100%; background:var(--primary-blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">CADASTRAR</button>
+            <button onclick="addFunc()" style="width:100%; background:#0056b3; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-weight:bold;">CADASTRAR</button>
             <div id="lista-admin-corpo" style="margin-top:10px; max-height:150px; overflow-y:auto; background:white;"></div>
         </div>
     </div>
@@ -100,7 +102,7 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.value = 850; gain.gain.value = 0.1;
+        osc.frequency.value = 880; gain.gain.value = 0.1;
         osc.start(); osc.stop(audioCtx.currentTime + 0.15);
     }
 
@@ -112,14 +114,14 @@
         return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
     }
 
-    async function carregarEquipe() {
+    async function carregarDados() {
         try {
-            const response = await fetch(API_URL + "?acao=ler");
-            equipe = await response.json();
+            const res = await fetch(API_URL + "?acao=ler");
+            equipe = await res.json();
             renderizarListas();
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('conteudo').classList.remove('hidden');
-        } catch (e) { document.getElementById('loading').innerText = "Erro ao carregar lista."; }
+        } catch (e) { document.getElementById('loading').innerText = "Erro na conexão."; }
     }
 
     function renderizarListas() {
@@ -131,17 +133,40 @@
         equipe.forEach((nome, i) => {
             listaG.innerHTML += `
                 <div class="item-lista">
-                    <input type="checkbox" id="check-${i}" checked onchange="document.getElementById('motivo-${i}').classList.toggle('hidden', this.checked)">
-                    <span class="nome-func">${nome}</span>
-                    <select id="motivo-${i}" class="motivo-select hidden">
-                        <option value="Férias">Férias</option>
+                    <div class="item-info">
+                        <input type="checkbox" id="check-${i}" checked onchange="monitorar()">
+                        <span class="nome-func">${nome}</span>
+                    </div>
+                    <select id="motivo-${i}" class="hidden" style="width: auto;" onchange="monitorar()">
+                        <option value="Falta sem justificativa">Falta s/ Just.</option>
                         <option value="Atestado">Atestado</option>
-                        <option value="Falta">Falta</option>
+                        <option value="Férias">Férias</option>
+                        <option value="Em viagem">Em viagem</option>
+                        <option value="Falta justificada">Falta Just.</option>
                     </select>
                 </div>`;
             selI.innerHTML += `<option value="${nome}">${nome}</option>`;
-            listaA.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #eee; font-size:12px;"><span>${nome}</span><span style="color:red; cursor:pointer;" onclick="delFunc('${nome}')">🗑️</span></div>`;
+            listaA.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee; font-size:12px;"><span>${nome}</span><span style="color:red; cursor:pointer;" onclick="delFunc('${nome}')">🗑️</span></div>`;
         });
+    }
+
+    function monitorar() {
+        let f=0, a=0, j=0, s=0;
+        equipe.forEach((_, i) => {
+            const cb = document.getElementById(`check-${i}`);
+            const sel = document.getElementById(`motivo-${i}`);
+            if (!cb.checked) {
+                sel.classList.remove('hidden');
+                if (sel.value === "Férias") f++;
+                else if (sel.value === "Atestado") a++;
+                else if (sel.value === "Falta justificada") j++;
+                else s++;
+            } else { sel.classList.add('hidden'); }
+        });
+        document.getElementById('count-ferias').innerText = f;
+        document.getElementById('count-atestado').innerText = a;
+        document.getElementById('count-faltajust').innerText = j;
+        document.getElementById('count-faltas').innerText = s;
     }
 
     function obterGps() {
@@ -157,69 +182,77 @@
 
             if (planta) {
                 dadosLoc.unidade = planta;
-                btn.innerHTML = `✅ ${planta}<br>${dadosLoc.hora}`;
-                btn.style.background = "#075E54";
+                btn.innerHTML = `✅ ${planta} - ${dadosLoc.hora}`;
+                btn.style.backgroundColor = "#075E54";
             } else {
                 dadosLoc.unidade = "FORA DA PLANTA";
-                btn.innerHTML = `🛑 FORA DA PLANTA<br>${dadosLoc.hora}`;
-                btn.style.background = "#d9534f";
+                btn.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`;
+                btn.style.backgroundColor = "#d9534f";
             }
         }, null, {enableHighAccuracy: true});
     }
 
     function alternarModo() {
-        const m = document.getElementById('modo-envio').value;
-        document.getElementById('campos-geral').classList.toggle('hidden', m === 'individual');
-        document.getElementById('campos-individual').classList.toggle('hidden', m === 'geral');
-        if (m === 'individual') { document.getElementById('status-gps').classList.remove('hidden'); obterGps(); }
+        const modo = document.getElementById('modo-envio').value;
+        document.getElementById('campos-geral').classList.toggle('hidden', modo === 'individual');
+        document.getElementById('campos-individual').classList.toggle('hidden', modo === 'geral');
+        if (modo === 'individual') { document.getElementById('status-gps').classList.remove('hidden'); obterGps(); }
         else { document.getElementById('status-gps').classList.add('hidden'); }
     }
 
     function abrirPainelAdmin() {
-        if(prompt("Senha:") === "123") {
+        if(prompt("Senha Administrativa:") === "123") {
             document.getElementById('admin-area').classList.toggle('hidden');
-            document.getElementById('btn-enviar-wa').classList.toggle('hidden');
+            document.getElementById('btn-enviar-wa').classList.add('hidden');
+            document.getElementById('btn-admin-trigger').classList.add('hidden');
         }
     }
 
-    function enviarTudo() {
+    function enviarWhatsapp() {
         emitirBip();
-        const m = document.getElementById('modo-envio').value;
+        const modo = document.getElementById('modo-envio').value;
         const data = new Date().toLocaleDateString('pt-BR');
-        let msg = ""; let nomeF = "Equipe";
+        let msg = ""; let nomeColab = "Equipe";
 
-        if(m === "individual") {
-            nomeF = document.getElementById('select-individual').value;
-            msg = `*FREQUÊNCIA INDIVIDUAL*\n📅 Data: ${data}\n👤 Nome: ${nomeF}\n🏢 Unidade: ${dadosLoc.unidade}\n📍 Mapa: ${dadosLoc.link}`;
+        if (modo === "individual") {
+            nomeColab = document.getElementById('select-individual').value;
+            msg = `*RELATÓRIO INDIVIDUAL*\n✅ *Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Nome: ${nomeColab}\n🏢 Unidade: ${dadosLoc.unidade}\n📍 Mapa: ${dadosLoc.link}`;
         } else {
-            let p=[], a=[];
-            equipe.forEach((n, i) => {
-                if(document.getElementById(`check-${i}`).checked) p.push(`- ${n}`);
-                else a.push(`- ${n} (${document.getElementById(`motivo-${i}`).value})`);
+            let p=[], f=[], a=[], v=[], j=[], s=[];
+            equipe.forEach((nome, i) => {
+                if (document.getElementById(`check-${i}`).checked) p.push(`_${nome}_`);
+                else {
+                    const mot = document.getElementById(`motivo-${i}`).value;
+                    if (mot === "Férias") f.push(`_${nome}_`);
+                    else if (mot === "Atestado") a.push(`_${nome}_`);
+                    else if (mot === "Em viagem") v.push(`_${nome}_`);
+                    else if (mot === "Falta justificada") j.push(`_${nome}_`);
+                    else s.push(`_${nome}_`);
+                }
             });
-            msg = `*FREQUÊNCIA TELEJUR*\n📅 Data: ${data}\n\n✅ *PRESENTES:*\n${p.join('\n')}\n\n❌ *AUSÊNCIAS:*\n${a.join('\n') || "_Nenhuma_"}`;
+            msg = `*FREQUÊNCIA TELEJUR*\n📅 Data: ${data}\n\n✔️ *Efetivo Planta: ${p.length}*\n${p.join('\n')}\n\nAusências:\n- Férias: ${f.join(', ') || '0'}\n- Atestado: ${a.join(', ') || '0'}\n- Viagem: ${v.join(', ') || '0'}\n- Justificada: ${j.join(', ') || '0'}\n- Faltas: ${s.join(', ') || '0'}`;
         }
 
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
-        document.getElementById('msg-agradecimento').innerText = `Obrigado, ${nomeF}!`;
+        document.getElementById('msg-agradecimento').innerText = `Obrigado, ${nomeColab}!`;
         document.getElementById('tela-final').classList.remove('hidden');
     }
 
+    // Funções Admin de Persistência
     async function addFunc() {
         const n = document.getElementById('novo-nome').value;
         const s = document.getElementById('senha-admin').value;
         const res = await fetch(`${API_URL}?acao=add&nome=${encodeURIComponent(n)}&senha=${s}`);
         if(await res.text() === "OK") location.reload();
     }
-
     async function delFunc(nome) {
         const s = document.getElementById('senha-admin').value;
-        if(!s) return alert("Digite a senha!");
+        if(!s) return alert("Digite a senha admin!");
         const res = await fetch(`${API_URL}?acao=deletar&nome=${encodeURIComponent(nome)}&senha=${s}`);
         if(await res.text() === "OK") location.reload();
     }
 
-    window.onload = carregarEquipe;
+    window.onload = carregarDados;
 </script>
 </body>
 </html>
