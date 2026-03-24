@@ -7,21 +7,44 @@
     <style>
         :root { --primary: #007bff; --secondary: #25D366; --bg: #f4f7f6; --white: #ffffff; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); padding: 15px; display: flex; justify-content: center; margin: 0; }
-        .container { width: 100%; max-width: 450px; background: var(--white); padding: 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; min-height: 550px; overflow: hidden; }
-        .header-area { text-align: center; margin-bottom: 20px; }
+        .container { width: 100%; max-width: 450px; background: var(--white); padding: 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; min-height: 580px; overflow: hidden; display: flex; flex-direction: column; }
+        
+        .header-area { text-align: center; margin-bottom: 15px; width: 100%; }
         .titulo-principal { color: var(--primary); font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 0; }
         .sub-titulo { color: var(--primary); font-size: 15px; font-weight: 600; margin: 5px 0 10px 0; }
         
-        /* FONTE AUMENTADA EM UM NÍVEL (16px) */
-        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; border-bottom: 1px solid #f8fafc; }
+        /* PAINEL GPS COMPACTO E CENTRALIZADO */
+        .btn-gps { 
+            background: #f8f9fa; 
+            border: 1px solid #e2e8f0; 
+            padding: 10px; /* Reduzido de 15px */
+            border-radius: 16px; 
+            margin: 0 auto 15px auto; /* Centralizado com margem automática nas laterais */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            width: 90%; /* Proporcional ao container */
+            min-height: 60px; /* Reduzido de 90px */
+            box-sizing: border-box;
+        }
+        .btn-gps b { font-size: 14px; }
+        .btn-gps small { font-size: 11px; color: #718096; }
+
+        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #f8fafc; }
         .nome-func { font-size: 16px; font-weight: 600; color: #2d3748; }
-        select, input[type="text"] { width: 100%; font-size: 16px; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 12px; margin-bottom: 12px; box-sizing: border-box; }
+        select, input[type="text"] { width: 100%; font-size: 16px; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 12px; margin-bottom: 12px; box-sizing: border-box; outline: none; }
         
         .btn-admin-top { display: inline-block; background: rgba(0, 123, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 123, 255, 0.2); padding: 6px 12px; border-radius: 10px; font-size: 11px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
         .hidden { display: none !important; }
-        .btn-gps { background: #f8f9fa; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; box-sizing: border-box; min-height: 90px; }
+        
         button.enviar { width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 18px; font-size: 18px; border-radius: 16px; cursor: pointer; font-weight: 700; box-shadow: 0 8px 15px rgba(37, 211, 102, 0.2); }
         
+        #secao-gestao { padding: 10px; }
+        .item-admin { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .btn-del { color: #e53e3e; border: none; background: none; font-weight: bold; cursor: pointer; padding: 5px 10px; }
+
         #tela-sucesso { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 100; padding: 30px; box-sizing: border-box; }
         .progress-bar { width: 150px; height: 4px; background: #eee; border-radius: 2px; margin-top: 15px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 3s linear; }
@@ -50,17 +73,25 @@
             <option value="individual">Individual (Validar Local)</option>
         </select>
 
-        <div id="status-gps" class="btn-gps hidden">⌛ Localizando posição...</div>
+        <div id="status-gps" class="btn-gps hidden">⌛ Localizando...</div>
 
         <div id="campos-individual" class="hidden">
             <select id="select-individual"></select>
         </div>
 
         <div id="campos-geral">
-            <div id="corpo-lista" style="max-height: 300px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 12px;">Carregando equipe...</div>
+            <div id="corpo-lista" style="max-height: 280px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 12px;">Carregando equipe...</div>
         </div>
 
         <button id="btn-principal" class="enviar" onclick="processarEnvio()" style="margin-top: 20px;">🚀 Enviar lista de frequencia</button>
+    </div>
+
+    <div id="secao-gestao" class="hidden">
+        <h3 style="text-align:center; color:var(--primary); margin-bottom:20px;">Painel Administrativo</h3>
+        <input type="text" id="novo-nome" placeholder="Digite o nome completo...">
+        <button onclick="addFuncionario()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">+ ADICIONAR FUNCIONÁRIO</button>
+        <div id="lista-admin" style="max-height: 250px; overflow-y: auto; background: #fff; border-radius:12px; border: 1px solid #eee;"></div>
+        <button onclick="fecharGestao()" style="width:100%; background:#718096; color:white; border:none; padding:12px; border-radius:12px; margin-top:20px;">VOLTAR</button>
     </div>
 </div>
 
@@ -101,9 +132,9 @@
             const distPorto = calcularDistancia(lat, lon, locais.porto.lat, locais.porto.lon);
             const distBenef = calcularDistancia(lat, lon, locais.beneficiamento.lat, locais.beneficiamento.lon);
             const st = document.getElementById('status-gps');
-            if (distPorto < 1000) { dadosLoc.unidadeMsg = "PRESENTE NA ALCOA PORTO"; st.innerHTML = `<b>✅ ALCOA PORTO</b>`; st.style.backgroundColor = "#e6fffa"; }
-            else if (distBenef < 2500) { dadosLoc.unidadeMsg = "PRESENTE NA ALCOA BENEFICIAMENTO"; st.innerHTML = `<b>✅ ALCOA BENEFICIAMENTO</b>`; st.style.backgroundColor = "#e6fffa"; }
-            else { dadosLoc.unidadeMsg = "FORA DA PLANTA"; st.innerHTML = `<b>🛑 FORA DA PLANTA</b>`; st.style.backgroundColor = "#fff5f5"; }
+            if (distPorto < 1000) { dadosLoc.unidadeMsg = "PRESENTE NA ALCOA PORTO"; st.innerHTML = `<b>✅ ALCOA PORTO</b><small>${dadosLoc.hora}</small>`; st.style.backgroundColor = "#e6fffa"; }
+            else if (distBenef < 2500) { dadosLoc.unidadeMsg = "PRESENTE NA ALCOA BENEFICIAMENTO"; st.innerHTML = `<b>✅ ALCOA BENEFICIAMENTO</b><small>${dadosLoc.hora}</small>`; st.style.backgroundColor = "#e6fffa"; }
+            else { dadosLoc.unidadeMsg = "FORA DA PLANTA"; st.innerHTML = `<b>🛑 FORA DA PLANTA</b><small>${dadosLoc.hora}</small>`; st.style.backgroundColor = "#fff5f5"; }
         }, null, { enableHighAccuracy: true });
     }
 
@@ -125,8 +156,6 @@
                 if (cb.checked) p.push(`_${n}_`);
                 else f.push(`_${n}_ (${document.getElementById(`motivo-${i}`).value})`);
             });
-            
-            // FORMATAÇÃO WHATSAPP COM TRACEJADO
             const divisor = "\n- - - - - - - - - - - - - - - - - -\n";
             msg = `*LISTA DE FREQUÊNCIA - TELEJUR*\n📅 *Data:* ${dataH}\n\n✅ *Presente na Planta:* ${p.length}\n${p.join(divisor)}\n\n❌ *Ausentes:* ${f.length}\n${f.join(divisor)}`;
         }
@@ -163,24 +192,39 @@
             equipe = Array.isArray(data) ? data : [];
             const listaDiv = document.getElementById('corpo-lista');
             const selInd = document.getElementById('select-individual');
-            listaDiv.innerHTML = ""; selInd.innerHTML = "";
+            const listaAdm = document.getElementById('lista-admin');
+            listaDiv.innerHTML = ""; selInd.innerHTML = ""; listaAdm.innerHTML = "";
             equipe.forEach((nome, i) => {
-                listaDiv.innerHTML += `
-                    <div class="item-lista">
-                        <span class="nome-func">${nome}</span>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <input type="checkbox" id="check-${i}" checked onchange="monitorar()" style="width:24px; height:24px;">
-                            <select id="motivo-${i}" class="hidden" style="width:160px; margin:0; padding:6px; font-size:13px;">
-                                <option value="Falta não justificada">Falta não justificada</option>
-                                <option value="Falta justificada">Falta justificada</option>
-                                <option value="Atestado">Atestado</option>
-                                <option value="Férias">Férias</option>
-                            </select>
-                        </div>
-                    </div>`;
+                listaDiv.innerHTML += `<div class="item-lista"><span class="nome-func">${nome}</span><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="check-${i}" checked onchange="monitorar()" style="width:24px; height:24px;"><select id="motivo-${i}" class="hidden" style="width:160px; padding:6px; font-size:13px;"><option value="Falta não justificada">Falta não justificada</option><option value="Falta justificada">Falta justificada</option><option value="Atestado">Atestado</option><option value="Férias">Férias</option></select></div></div>`;
                 selInd.innerHTML += `<option value="${nome}">${nome}</option>`;
+                listaAdm.innerHTML += `<div class="item-admin"><span>${nome}</span><button class="btn-del" onclick="deletarFuncionario('${nome}')">EXCLUIR</button></div>`;
             });
         });
+    }
+
+    function abrirGestao() {
+        if(prompt("Senha:") === "123") {
+            document.getElementById('interface-usuario').classList.add('hidden');
+            document.getElementById('secao-gestao').classList.remove('hidden');
+        }
+    }
+
+    function fecharGestao() {
+        document.getElementById('secao-gestao').classList.add('hidden');
+        document.getElementById('interface-usuario').classList.remove('hidden');
+    }
+
+    function addFuncionario() {
+        const nome = document.getElementById('novo-nome').value;
+        if(!nome) return;
+        chamadaAPI(`acao=add&nome=${encodeURIComponent(nome)}&senha=123`, () => {
+            document.getElementById('novo-nome').value = "";
+            atualizarDados();
+        });
+    }
+
+    function deletarFuncionario(nome) {
+        if(confirm(`Remover ${nome}?`)) chamadaAPI(`acao=deletar&nome=${encodeURIComponent(nome)}&senha=123`, atualizarDados);
     }
 
     function monitorar() {
@@ -193,12 +237,9 @@
     function reiniciar() {
         document.getElementById('tela-sucesso').classList.add('hidden');
         document.getElementById('fill').style.width = "0%";
-        document.getElementById('modo-envio').value = "geral";
-        alternarModo();
         atualizarDados();
     }
 
-    function abrirGestao() { if(prompt("Senha:")==="123") { /* Admin logic */ } }
     window.onload = atualizarDados;
 </script>
 </body>
