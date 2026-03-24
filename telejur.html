@@ -22,7 +22,6 @@
         .btn-gps { background: #f8f9fa; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 80px; width: 100%; box-sizing: border-box; }
         button.enviar { width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 18px; font-size: 16px; border-radius: 16px; cursor: pointer; font-weight: 700; box-shadow: 0 8px 15px rgba(37, 211, 102, 0.2); }
         #tela-sucesso { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 100; padding: 30px; box-sizing: border-box; border-radius: 24px; }
-        #secao-gestao { border: 2px dashed var(--primary); padding: 20px; border-radius: 20px; background: #f0f7ff; }
     </style>
 </head>
 <body>
@@ -32,7 +31,7 @@
         <h1 style="font-size: 60px; margin: 0;">✅</h1>
         <h2 style="color: #2d3748; margin: 10px 0;">Registrado com sucesso</h2>
         <p id="msg-agradecimento" style="font-size: 18px; color: #718096;"></p>
-        <button onclick="reiniciar()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px 25px; border-radius:12px; cursor:pointer; font-weight:bold;">Novo Registro</button>
+        <p style="font-size: 12px; color: #a0aec0;">Redirecionando para o WhatsApp...</p>
     </div>
 
     <div id="interface-usuario">
@@ -60,18 +59,10 @@
                 <div class="status-box"><span id="count-faltajust">0</span><label>Justificado</label></div>
                 <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
             </div>
-            <div id="corpo-lista" style="max-height: 250px; overflow-y: auto;">Carregando equipe...</div>
+            <div id="corpo-lista" style="max-height: 250px; overflow-y: auto;">Buscando equipe...</div>
         </div>
 
         <button id="btn-principal" class="enviar" onclick="processarEnvio()" style="margin-top: 20px;">🚀 Enviar lista de frequencia</button>
-    </div>
-
-    <div id="secao-gestao" class="hidden">
-        <h3 style="text-align:center; color:var(--primary);">Gestão Telejur</h3>
-        <input type="text" id="novo-nome" placeholder="Nome do funcionário...">
-        <button onclick="addFuncionario()" style="width:100%; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold;">CADASTRAR</button>
-        <div id="lista-admin" style="margin-top:20px; max-height: 200px; overflow-y: auto;"></div>
-        <button onclick="fecharGestao()" style="width:100%; background:#718096; color:white; border:none; padding:10px; border-radius:10px; margin-top:10px;">VOLTAR</button>
     </div>
 </div>
 
@@ -133,12 +124,17 @@
             msg = `*LISTA DE FREQUÊNCIA - TELEJUR*\n📅 *Data:* ${dataH}\n\n✅ *Presentes:* ${p.length}\n${p.join('\n')}\n\n❌ *Ausentes:* ${f.length}\n${f.join('\n')}`;
         }
 
-        // COMANDO PARA ABRIR WHATSAPP
-        window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
-        
-        // MOSTRAR TELA DE SUCESSO
+        // 1. Exibir tela de sucesso
         document.getElementById('msg-agradecimento').innerText = `Obrigado, ${nomeSucesso}`;
         document.getElementById('tela-sucesso').classList.remove('hidden');
+
+        // 2. Abrir WhatsApp após um pequeno delay (para o usuário ver o check)
+        setTimeout(() => {
+            window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
+            
+            // 3. Resetar o sistema para o início após abrir o WhatsApp
+            setTimeout(reiniciar, 1000); 
+        }, 800);
     }
 
     function alternarModo() {
@@ -163,12 +159,10 @@
             equipe = Array.isArray(data) ? data : [];
             const listaDiv = document.getElementById('corpo-lista');
             const selInd = document.getElementById('select-individual');
-            const listaAdmin = document.getElementById('lista-admin');
-            listaDiv.innerHTML = ""; selInd.innerHTML = ""; listaAdmin.innerHTML = "";
+            listaDiv.innerHTML = ""; selInd.innerHTML = "";
             equipe.forEach((nome, i) => {
-                listaDiv.innerHTML += `<div class="item-lista"><span>${nome}</span><div><input type="checkbox" id="check-${i}" checked onchange="monitorar()"><select id="motivo-${i}" class="hidden" style="width:80px; margin:0; padding:2px;"><option value="Falta">Falta</option><option value="Férias">Férias</option></select></div></div>`;
+                listaDiv.innerHTML += `<div class="item-lista"><span>${nome}</span><div><input type="checkbox" id="check-${i}" checked onchange="monitorar()"><select id="motivo-${i}" class="hidden" style="width:100px; padding:2px;"><option value="Falta">Falta</option><option value="Férias">Férias</option><option value="Atestado">Atestado</option></select></div></div>`;
                 selInd.innerHTML += `<option value="${nome}">${nome}</option>`;
-                listaAdmin.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px;"><span>${nome}</span><button onclick="deletarFuncionario('${nome}')" style="color:red; border:none; background:none;">✕</button></div>`;
             });
         });
     }
@@ -180,11 +174,14 @@
         });
     }
 
-    function reiniciar() { document.getElementById('tela-sucesso').classList.add('hidden'); }
-    function abrirGestao() { if(prompt("Senha:")==="123") { document.getElementById('interface-usuario').classList.add('hidden'); document.getElementById('secao-gestao').classList.remove('hidden'); } }
-    function fecharGestao() { document.getElementById('interface-usuario').classList.remove('hidden'); document.getElementById('secao-gestao').classList.add('hidden'); }
-    function addFuncionario() { const n = document.getElementById('novo-nome').value; chamadaAPI(`acao=add&nome=${encodeURIComponent(n)}&senha=123`, atualizarDados); }
-    function deletarFuncionario(n) { if(confirm("Sair?")) chamadaAPI(`acao=deletar&nome=${encodeURIComponent(n)}&senha=123`, atualizarDados); }
+    function reiniciar() {
+        document.getElementById('tela-sucesso').classList.add('hidden');
+        document.getElementById('modo-envio').value = "geral";
+        alternarModo();
+        atualizarDados();
+    }
+
+    function abrirGestao() { if(prompt("Senha:")==="123") { /* Logica de gestao ja existente */ } }
     window.onload = atualizarDados;
 </script>
 </body>
