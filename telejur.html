@@ -3,128 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequência Telejur</title>
+    <title>Frequência Telejur - Oficial</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; margin: 0; }
-        .container { width: 100%; max-width: 400px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; box-sizing: border-box; }
-        .header-title { display: flex; align-items: center; justify-content: center; gap: 10px; color: #075E54; margin-bottom: 20px; font-size: 20px; font-weight: bold; }
-        .btn-admin-top { position: absolute; top: 15px; right: 15px; background: #007bff; color: white; border: none; padding: 5px 12px; border-radius: 50px; font-size: 10px; cursor: pointer; }
-        label.label-peq { font-size: 11px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; text-transform: uppercase; }
-        select, input { width: 100%; font-size: 15px; border-radius: 10px; border: 1px solid #ccc; padding: 12px; background: #fff; margin-bottom: 15px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; box-sizing: border-box; }
+        h2 { color: #075E54; text-align: center; margin-bottom: 20px; font-size: 22px; }
         
-        /* CORREÇÃO DO CARD DE LOCALIZAÇÃO */
-        .btn-gps { background-color: #d9534f; color: white; padding: 15px; border-radius: 12px; font-weight: bold; margin-bottom: 15px; width: 100%; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; }
+        .btn-admin-top { position: absolute; top: 15px; right: 15px; background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 50px; font-size: 10px; cursor: pointer; font-weight: bold; }
 
-        /* LISTA DE NOMES */
-        .item-lista { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f1f1; gap: 10px; }
-        .item-info { display: flex; align-items: center; gap: 12px; flex: 1; }
-        .item-info input { transform: scale(1.3); margin-left: 5px; }
-        .sel-motivo { width: auto; margin-bottom: 0; padding: 5px; font-size: 12px; border-radius: 5px; }
+        .card-status { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+        .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
+        .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
+        .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
+
+        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #f1f1f1; }
+        .item-info { display: flex; align-items: center; gap: 10px; }
+        .item-info input { transform: scale(1.3); cursor: pointer; }
+        .nome-func { font-size: 14px; color: #333; }
         
-        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 18px; font-size: 16px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+        select, input[type="text"] { width: 100%; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; padding: 12px; background: #fff; margin-bottom: 10px; box-sizing: border-box; }
         .hidden { display: none !important; }
+
+        .btn-gps { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; width: 100%; font-size: 14px; text-align: center; line-height: 1.4; min-height: 50px; box-sizing: border-box; }
+        
+        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        .label-peq { font-size: 12px; font-weight: bold; color: #075E54; display: block; margin-bottom: 5px; }
+
+        /* SEÇÃO GESTÃO */
+        #secao-gestao { border: 2px dashed #007bff; padding: 15px; border-radius: 12px; background: #f0f7ff; margin-top: 10px; }
+        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: white; border-bottom: 1px solid #eee; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <button class="btn-admin-top" onclick="loginGestao()">⚙️ GESTÃO</button>
+    <button class="btn-admin-top" onclick="abrirGestao()">⚙️ GESTÃO</button>
+    
     <div id="interface-usuario">
-        <div class="header-title">📋 Frequência Telejur</div>
-        <label class="label-peq">Modo de Envio:</label>
+        <h2>📋 Frequência Telejur</h2>
+
+        <label class="label-peq">MODO DE ENVIO:</label>
         <select id="modo-envio" onchange="alternarModo()">
             <option value="geral">Lista Geral (Equipe)</option>
-            <option value="individual">Individual (Validar Local)</option>
+            <option value="individual">Formulário Individual (Validar Local)</option>
         </select>
+
         <div id="status-gps" class="btn-gps hidden">⌛ Localizando...</div>
-        <div id="campos-geral">
-            <label class="label-peq">Efetivo na Planta:</label>
-            <div id="corpo-lista">Buscando equipe...</div>
+
+        <div id="campos-individual" class="hidden">
+            <label class="label-peq">FUNCIONÁRIO:</label>
+            <select id="select-individual"></select>
         </div>
+
+        <div id="campos-geral">
+            <div class="card-status">
+                <div class="status-box"><span id="count-ferias">0</span><label>Férias</label></div>
+                <div class="status-box"><span id="count-atestado">0</span><label>Atestado</label></div>
+                <div class="status-box"><span id="count-faltajust">0</span><label>F. Justif.</label></div>
+                <div class="status-box"><span id="count-faltas">0</span><label>Faltas</label></div>
+            </div>
+            <div id="corpo-lista">Carregando equipe...</div>
+        </div>
+
         <button class="enviar" onclick="enviarWhatsapp()">🚀 Enviar no WhatsApp</button>
     </div>
 
     <div id="secao-gestao" class="hidden">
-        <h3 style="text-align:center;">Gestão</h3>
-        <input type="text" id="novo-nome" placeholder="Novo nome...">
-        <button onclick="addFunc()" style="width:100%; padding:10px; background:#007bff; color:white; border:none; border-radius:8px;">ADICIONAR</button>
-        <div id="lista-admin" style="margin-top:15px; max-height:200px; overflow-y:auto;"></div>
-        <button onclick="sairGestao()" style="width:100%; margin-top:10px; padding:10px;">VOLTAR</button>
+        <h3 style="text-align:center; color:#007bff; margin-top:0;">Gestão da Equipe</h3>
+        <input type="text" id="novo-nome" placeholder="Nome do novo funcionário...">
+        <button onclick="addFuncionario()" style="width:100%; background:#007bff; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">CADASTRAR</button>
+        
+        <div id="lista-admin" style="margin-top:15px; max-height: 200px; overflow-y: auto;"></div>
+        
+        <button onclick="fecharGestao()" style="width:100%; background:#6c757d; color:white; border:none; padding:10px; border-radius:8px; margin-top:10px; cursor:pointer;">VOLTAR</button>
     </div>
 </div>
 
 <script>
     const URL_GOOGLE = "https://script.google.com/macros/s/AKfycbxcDhXRYVo_Nn3VkFzHg9cq_rqUJZ1Ll9PcQzoIeOgt5VHxaQot1noJbyg5nKJSg6yW/exec";
     let equipe = [];
+    
+    const pontosAlcoa = [
+        { nome: "ALCOA - PORTO", lat: -2.1677, lon: -56.1017 },
+        { nome: "ALCOA - BENEFICIAMENTO", lat: -2.4488, lon: -56.1708 }
+    ];
 
-    function api(p, cb) {
-        const id = 'cb'+Date.now();
-        window[id] = (d) => { cb(d); delete window[id]; document.getElementById(id).remove(); };
-        const s = document.createElement('script'); s.id = id;
-        s.src = `${URL_GOOGLE}?${p}&callback=${id}`;
-        document.body.appendChild(s);
+    let dadosLoc = { link: "", enderecoFormatado: "", unidadeMsg: "", statusMsg: "", hora: "" };
+
+    // --- COMUNICAÇÃO COM PLANILHA ---
+    function chamadaAPI(params, callbackFn) {
+        const id = 'jsonp_' + Date.now();
+        window[id] = (data) => { callbackFn(data); delete window[id]; document.getElementById(id).remove(); };
+        const script = document.createElement('script');
+        script.id = id;
+        script.src = `${URL_GOOGLE}?${params}&callback=${id}`;
+        document.body.appendChild(script);
     }
 
-    function carregar() { api("acao=ler", (d) => { equipe = d; exibir(); }); }
+    function atualizarDados() {
+        chamadaAPI("acao=ler", (data) => {
+            equipe = Array.isArray(data) ? data : [];
+            renderizarListas();
+        });
+    }
 
-    function exibir() {
-        const lista = document.getElementById('corpo-lista');
-        const adm = document.getElementById('lista-admin');
-        lista.innerHTML = ""; adm.innerHTML = "";
-        equipe.forEach((n, i) => {
-            lista.innerHTML += `
+    function renderizarListas() {
+        const listaDiv = document.getElementById('corpo-lista');
+        const selInd = document.getElementById('select-individual');
+        const listaAdmin = document.getElementById('lista-admin');
+        
+        listaDiv.innerHTML = ""; selInd.innerHTML = ""; listaAdmin.innerHTML = "";
+
+        equipe.forEach((nome, i) => {
+            listaDiv.innerHTML += `
                 <div class="item-lista">
                     <div class="item-info">
-                        <input type="checkbox" id="c-${i}" checked onchange="document.getElementById('m-${i}').classList.toggle('hidden', this.checked)">
-                        <span class="nome-func">${n}</span>
+                        <input type="checkbox" id="check-${i}" checked onchange="monitorar()">
+                        <span class="nome-func">${nome}</span>
                     </div>
-                    <select id="m-${i}" class="sel-motivo hidden">
-                        <option value="Férias">Férias</option>
+                    <select id="motivo-${i}" class="hidden" style="width: auto;" onchange="monitorar()">
+                        <option value="Falta sem justificativa">Falta sem justificativa</option>
                         <option value="Atestado">Atestado</option>
-                        <option value="Viagem">Em viagem</option>
-                        <option value="Justificada">F. Justificada</option>
-                        <option value="Falta">Falta não justificada</option>
+                        <option value="Férias">Férias</option>
+                        <option value="Em viagem">Em viagem</option>
+                        <option value="Falta justificada">Falta justificada</option>
                     </select>
                 </div>`;
-            adm.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #eee;">${n} <b style="color:red; cursor:pointer;" onclick="delFunc('${n}')">🗑️</b></div>`;
+            selInd.innerHTML += `<option value="${nome}">${nome}</option>`;
+            listaAdmin.innerHTML += `
+                <div class="admin-item">
+                    <span>${nome}</span>
+                    <button onclick="deletarFuncionario('${nome}')" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">🗑️</button>
+                </div>`;
         });
+        monitorar();
+    }
+
+    // --- FUNÇÕES DE GESTÃO ---
+    function abrirGestao() {
+        const senha = prompt("Senha de Administrador:");
+        if (senha === "123") {
+            document.getElementById('interface-usuario').classList.add('hidden');
+            document.getElementById('secao-gestao').classList.remove('hidden');
+        } else { alert("Senha incorreta!"); }
+    }
+
+    function fecharGestao() {
+        document.getElementById('interface-usuario').classList.remove('hidden');
+        document.getElementById('secao-gestao').classList.add('hidden');
+    }
+
+    function addFuncionario() {
+        const nome = document.getElementById('novo-nome').value.trim();
+        if (!nome) return;
+        chamadaAPI(`acao=add&nome=${encodeURIComponent(nome)}&senha=123`, (res) => {
+            if (res === "OK") {
+                document.getElementById('novo-nome').value = "";
+                atualizarDados();
+            }
+        });
+    }
+
+    function deletarFuncionario(nome) {
+        if (!confirm("Remover " + nome + "?")) return;
+        chamadaAPI(`acao=deletar&nome=${encodeURIComponent(nome)}&senha=123`, (res) => {
+            if (res === "OK") atualizarDados();
+        });
+    }
+
+    // --- LÓGICA DE LOCALIZAÇÃO E WHATSAPP (MANTIDA ORIGINAL) ---
+    function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
+        const R = 6371000; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    async function obterGps() {
+        const statusGps = document.getElementById('status-gps');
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+            dadosLoc.hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            dadosLoc.link = `https://www.google.com/maps?q=${lat},${lon}`;
+            
+            let plantaIdentificada = null;
+            for (const p of pontosAlcoa) {
+                if (calcularDistanciaMetros(lat, lon, p.lat, p.lon) <= 800) { plantaIdentificada = p.nome; break; }
+            }
+
+            if (plantaIdentificada) {
+                dadosLoc.unidadeMsg = plantaIdentificada; dadosLoc.statusMsg = "Presente na Planta";
+                dadosLoc.enderecoFormatado = plantaIdentificada;
+                statusGps.innerHTML = `✅ ${plantaIdentificada} - ${dadosLoc.hora}`;
+                statusGps.style.backgroundColor = "#075E54";
+            } else {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                    const data = await res.json();
+                    const rua = data.address.road || "Via identificada";
+                    dadosLoc.unidadeMsg = "FORA DA PLANTA"; dadosLoc.enderecoFormatado = rua; dadosLoc.statusMsg = "Ausente da planta";
+                    statusGps.innerHTML = `🛑 FORA DA PLANTA - ${dadosLoc.hora}<br><small>${rua}</small>`;
+                    statusGps.style.backgroundColor = "#d9534f";
+                } catch (e) { statusGps.innerText = `🛑 FORA DA PLANTA - ${dadosLoc.hora}`; }
+            }
+        }, null, { enableHighAccuracy: true });
+    }
+
+    function monitorar() {
+        let f = 0, a = 0, j = 0, s = 0;
+        equipe.forEach((_, i) => {
+            const cb = document.getElementById(`check-${i}`);
+            const sel = document.getElementById(`motivo-${i}`);
+            if (cb && !cb.checked) {
+                sel.classList.remove('hidden');
+                if (sel.value === "Férias") f++; else if (sel.value === "Atestado") a++; else if (sel.value === "Falta justificada") j++; else s++;
+            } else if (sel) { sel.classList.add('hidden'); }
+        });
+        document.getElementById('count-ferias').innerText = f;
+        document.getElementById('count-atestado').innerText = a;
+        document.getElementById('count-faltajust').innerText = j;
+        document.getElementById('count-faltas').innerText = s;
+    }
+
+    function alternarModo() {
+        const modo = document.getElementById('modo-envio').value;
+        document.getElementById('campos-geral').classList.toggle('hidden', modo === 'individual');
+        document.getElementById('campos-individual').classList.toggle('hidden', modo === 'geral');
+        if (modo === 'individual') { document.getElementById('status-gps').classList.remove('hidden'); obterGps(); }
+        else { document.getElementById('status-gps').classList.add('hidden'); }
     }
 
     function enviarWhatsapp() {
+        const modo = document.getElementById('modo-envio').value;
         const data = new Date().toLocaleDateString('pt-BR');
-        let p = [], f = [], a = [], v = [], j = [], nj = [];
+        let msg = "";
 
-        equipe.forEach((n, i) => {
-            if (document.getElementById(`c-${i}`).checked) p.push(n);
-            else {
-                const m = document.getElementById(`m-${i}`).value;
-                if (m === "Férias") f.push(n);
-                else if (m === "Atestado") a.push(n);
-                else if (m === "Viagem") v.push(n);
-                else if (m === "Justificada") j.push(n);
-                else nj.push(n);
-            }
-        });
-
-        let msg = `Segue Lista de frequência de hoje.\n\n`;
-        msg += `✅ *Empresa: Telejur*\nData: ${data}\n\n`;
-        msg += `✔️ *Efetivo na planta: ${p.length}*\n` + p.map(n => `_${n}_`).join('\n') + `\n\n`;
-        msg += `✔️ *Férias (${f.length})*\n` + f.join(', ') + `\n\n`;
-        msg += `✔️ *Atestado (${a.length})*\n` + a.join(', ') + `\n\n`;
-        msg += `✔️ *Em viagem (${v.length})*\n` + v.join(', ') + `\n\n`;
-        msg += `✔️ *Falta justificada (${j.length})*\n` + j.join(', ') + `\n\n`;
-        msg += `✔️ *Faltas (${nj.length})*\n` + nj.join(', ');
-
+        if (modo === "individual") {
+            const nome = document.getElementById('select-individual').value;
+            msg = `*RELATÓRIO DE FREQUÊNCIA INDIVIDUAL*\n\n✅ *Empresa: Telejur*\n📅 Data: ${data}\n⏰ Hora: ${dadosLoc.hora}\n👤 Funcionário: _${nome}_\n\n🏢 *Unidade:* ${dadosLoc.unidadeMsg}\n📍 *Local:* ${dadosLoc.enderecoFormatado}\n📊 *Status:* ${dadosLoc.statusMsg}\n🔗 *Link GPS:* ${dadosLoc.link}`;
+        } else {
+            let cat = { planta: [], ferias: [], atestado: [], viagem: [], just: [], falta: [] };
+            equipe.forEach((nome, i) => {
+                const cb = document.getElementById(`check-${i}`);
+                if (cb.checked) cat.planta.push(`_${nome}_`);
+                else {
+                    const mot = document.getElementById(`motivo-${i}`).value;
+                    if (mot === "Férias") cat.ferias.push(`_${nome}_`);
+                    else if (mot === "Atestado") cat.atestado.push(`_${nome}_`);
+                    else if (mot === "Em viagem") cat.viagem.push(`_${nome}_`);
+                    else if (mot === "Falta justificada") cat.just.push(`_${nome}_`);
+                    else cat.falta.push(`_${nome}_`);
+                }
+            });
+            msg = `Segue Lista de frequência de hoje.\n\n✅ *Empresa: Telejur*\nData: ${data}\n\n` +
+                  `✔️ *Efetivo na planta: ${cat.planta.length}*\n${cat.planta.join('\n')}\n\n` +
+                  `✔️ *Férias (${cat.ferias.length})*${cat.ferias.length > 0 ? ': ' + cat.ferias.join(', ') : ''}\n\n` +
+                  `✔️ *Atestado (${cat.atestado.length})*${cat.atestado.length > 0 ? ': ' + cat.atestado.join(', ') : ''}\n\n` +
+                  `✔️ *Em viagem (${cat.viagem.length})*${cat.viagem.length > 0 ? ': ' + cat.viagem.join(', ') : ''}\n\n` +
+                  `✔️ *Falta justificada (${cat.just.length})*${cat.just.length > 0 ? ': ' + cat.just.join(', ') : ''}\n\n` +
+                  `✔️ *Faltas (${cat.falta.length})*${cat.falta.length > 0 ? ': ' + cat.falta.join(', ') : ''}`;
+        }
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
     }
 
-    function addFunc() { const n = document.getElementById('novo-nome').value; if(!n) return; api(`acao=add&nome=${encodeURIComponent(n)}&senha=123`, () => { carregar(); document.getElementById('novo-nome').value=""; }); }
-    function delFunc(n) { if(confirm("Excluir?")) api(`acao=deletar&nome=${encodeURIComponent(n)}&senha=123`, () => carregar()); }
-    function loginGestao() { const s = prompt("Senha:"); if(s === "123") { document.getElementById('interface-usuario').classList.add('hidden'); document.getElementById('secao-gestao').classList.remove('hidden'); } }
-    function sairGestao() { document.getElementById('interface-usuario').classList.remove('hidden'); document.getElementById('secao-gestao').classList.add('hidden'); }
-    function alternarModo() { const ind = document.getElementById('modo-envio').value === 'individual'; document.getElementById('campos-geral').classList.toggle('hidden', ind); document.getElementById('status-gps').classList.toggle('hidden', !ind); if(ind) navigator.geolocation.getCurrentPosition((pos) => { const h = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}); document.getElementById('status-gps').innerHTML = `🛑 FORA DA PLANTA - ${h}<br><small>Via Identificada</small>`; }); }
-
-    window.onload = carregar;
+    window.onload = atualizarDados;
 </script>
 </body>
 </html>
