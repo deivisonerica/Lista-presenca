@@ -17,10 +17,10 @@
         .select-tipo { border: 2px solid var(--primary); font-weight: bold; color: var(--primary); background: #f0f7ff; }
         .msg-info { font-size: 11px; color: #2d3748; background: #ebf8ff; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: 600; }
         .hidden { display: none !important; }
-        button.enviar { width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 20px; font-size: 18px; border-radius: 16px; cursor: pointer; font-weight: 700; box-shadow: 0 8px 15px rgba(37,211,102,0.2); }
+        button.enviar { width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 20px; font-size: 18px; border-radius: 16px; cursor: pointer; font-weight: 700; }
         #tela-sucesso { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; }
         .progress-bar { width: 150px; height: 6px; background: #eee; border-radius: 3px; margin-top: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 2s linear; }
+        .progress-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 1.5s linear; }
     </style>
 </head>
 <body>
@@ -28,26 +28,23 @@
 <div class="container">
     <div id="tela-sucesso" class="hidden">
         <h1 style="font-size: 60px; margin: 0;">🚀</h1>
-        <h2 id="status-title">Validando Ponto...</h2>
-        <p id="msg-agradecimento" style="font-size: 16px; color: #718096;"></p>
+        <h2 id="status-title">Validando...</h2>
         <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
-        <p style="font-size: 11px; color: #cbd5e0; margin-top: 10px;">Aguarde o redirecionamento...</p>
     </div>
 
     <div id="interface-usuario">
         <div class="header-area">
-            <button onclick="abrirGestao()" style="font-size: 10px; border: none; background: none; color: #cbd5e0; cursor: pointer;">⚙️ CONFIG</button>
+            <button onclick="abrirGestao()" style="font-size: 10px; border: none; background: none; color: #cbd5e0; cursor: pointer;">⚙️ ADMIN</button>
             <h1 class="titulo-principal">Controle Juruti</h1>
             <p class="sub-titulo">Telejur - Alcoa</p>
         </div>
 
         <select id="modo-envio" onchange="alternarModo()">
-            <option value="geral">Lista Equipe (Faltas/Presença)</option>
-            <option value="individual">Individual (Batida de Ponto)</option>
+            <option value="geral">Lista Equipe (Geral)</option>
+            <option value="individual">Batida de Ponto (Individual)</option>
         </select>
 
-        <div id="bloco-tipo-registro">
-            <div id="msg-auto" class="msg-info">🤖 Analisando horário...</div>
+        <div id="bloco-tipo-registro" class="hidden"> <div id="msg-auto" class="msg-info">🤖 Analisando horário...</div>
             <select id="tipo-registro" class="select-tipo">
                 <option value="Chegada">🏁 Chegada / Início de Turno</option>
                 <option value="Início de Almoço">🍴 Início de Almoço</option>
@@ -58,27 +55,26 @@
 
         <div id="status-gps" class="btn-gps hidden">
             <b id="txt-local">⌛ Localizando GPS...</b><br>
-            <span id="relogio-agora" style="font-weight: 800; font-size: 20px; color: #2d3748;">00:00:00</span>
+            <span id="relogio-agora" style="font-weight: 800; font-size: 20px;">00:00:00</span>
         </div>
 
         <div id="campos-individual" class="hidden">
-            <label style="font-size: 12px; font-weight: bold; color: #718096; margin-left: 5px;">SELECIONE SEU NOME:</label>
             <select id="select-individual"></select>
         </div>
 
         <div id="campos-geral">
-            <div id="corpo-lista" style="max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px; background: #fafafa;"></div>
+            <div id="corpo-lista" style="max-height: 280px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px;"></div>
         </div>
 
         <button id="btn-principal" class="enviar" onclick="processarEnvio()" style="margin-top: 20px;">🚀 VALIDAR E ENVIAR</button>
     </div>
 
     <div id="secao-gestao" class="hidden">
-        <h3 style="text-align:center">Painel de Membros</h3>
-        <input type="text" id="novo-nome" placeholder="Nome do funcionário...">
-        <button onclick="addFuncionario()" style="width:100%; padding:15px; background: #007bff; color:white; border:none; border-radius:12px; font-weight: bold;">+ CADASTRAR</button>
-        <div id="lista-admin" style="margin-top:15px; border:1px solid #eee; max-height: 200px; overflow-y: auto; border-radius: 12px;"></div>
-        <button onclick="fecharGestao()" style="width:100%; margin-top:15px; padding:10px; border-radius: 12px; border: 1px solid #cbd5e0;">VOLTAR</button>
+        <h3 style="text-align:center">Gestão</h3>
+        <input type="text" id="novo-nome" placeholder="Nome...">
+        <button onclick="addFuncionario()" style="width:100%; padding:10px; background:#007bff; color:white; border:none; border-radius:8px;">+ Adicionar</button>
+        <div id="lista-admin" style="margin-top:10px; border:1px solid #eee; max-height: 150px; overflow-y: auto;"></div>
+        <button onclick="fecharGestao()" style="width:100%; margin-top:10px;">Voltar</button>
     </div>
 </div>
 
@@ -87,31 +83,38 @@
     
     let equipe = [];
     let watchID = null;
-    let dadosLoc = { link: "Não capturado", unidadeMsg: "Buscando...", horaEnvio: "" };
+    let dadosLoc = { link: "Ponto Manual", unidadeMsg: "NÃO VALIDADO GPS", horaEnvio: "" };
     const locais = { porto: { lat: -2.1677, lon: -56.1017 }, beneficiamento: { lat: -2.3166, lon: -56.2415 } };
+
+    function alternarModo() {
+        const m = document.getElementById('modo-envio').value;
+        document.getElementById('campos-geral').classList.toggle('hidden', m === 'individual');
+        document.getElementById('campos-individual').classList.toggle('hidden', m === 'geral');
+        document.getElementById('status-gps').classList.toggle('hidden', m === 'geral');
+        document.getElementById('bloco-tipo-registro').classList.toggle('hidden', m === 'geral');
+        if (m === 'individual') iniciarGps();
+    }
 
     function checarSugestaoHorario() {
         const agora = new Date();
         const totalMin = (agora.getHours() * 60) + agora.getMinutes();
         const s = document.getElementById('tipo-registro');
-        const m = document.getElementById('msg-auto');
         const hoje = agora.toLocaleDateString('pt-BR');
 
-        if (totalMin < 600) { s.value = "Chegada"; m.innerText = "📅 Sugestão: Entrada"; } 
+        if (totalMin < 600) s.value = "Chegada";
         else if (totalMin >= 630 && totalMin <= 840) {
             const jaAlmocou = localStorage.getItem('almoco_' + hoje);
             s.value = jaAlmocou ? "Término de Almoço" : "Início de Almoço";
-            m.innerText = jaAlmocou ? "🍱 Sugestão: Retorno" : "🍴 Sugestão: Almoço";
         } 
-        else if (totalMin >= 870) { s.value = "Saída"; m.innerText = "🚪 Sugestão: Saída"; }
+        else if (totalMin >= 870) s.value = "Saída";
     }
 
     function processarEnvio() {
-        const tipoReg = document.getElementById('tipo-registro').value;
         const modo = document.getElementById('modo-envio').value;
+        const tipoReg = (modo === "geral") ? "Chegada" : document.getElementById('tipo-registro').value;
         const nomeFinal = (modo === "individual") ? document.getElementById('select-individual').value : "Equipe Geral";
         
-        document.getElementById('status-title').innerText = "Validando na Planilha...";
+        document.getElementById('status-title').innerText = "Salvando na Planilha...";
         document.getElementById('tela-sucesso').classList.remove('hidden');
         document.getElementById('fill').style.width = "100%";
 
@@ -119,28 +122,30 @@
         
         chamadaAPI(params, (res) => {
             const dataH = new Date().toLocaleDateString('pt-BR');
-            if (tipoReg === "Início de Almoço") localStorage.setItem('almoco_' + dataH, 'true');
-
             let msg = "";
+
             if (modo === "individual") {
+                if (tipoReg === "Início de Almoço") localStorage.setItem('almoco_' + dataH, 'true');
                 msg = `*PONTO VALIDADO - JURUTI*\n\n📌 *Tipo:* ${tipoReg}\n👤 *Nome:* ${nomeFinal}\n🏢 *Local:* ${dadosLoc.unidadeMsg}\n📅 *Data:* ${dataH}\n⏰ *Hora:* ${dadosLoc.horaEnvio}\n📍 *GPS:* ${dadosLoc.link}`;
             } else {
                 let p = [], f = [];
                 equipe.forEach((n, i) => {
                     const cb = document.getElementById(`check-${i}`);
-                    if (cb.checked) p.push(`_${n}_`);
-                    else f.push(`_${n}_ (${document.getElementById(`motivo-${i}`).value})`);
+                    if (cb.checked) p.push(`- _${n}_`);
+                    else f.push(`- _${n}_ (${document.getElementById(`motivo-${i}`).value})`);
                 });
-                msg = `*FREQUÊNCIA EQUIPE - JURUTI*\n📌 *Tipo:* ${tipoReg}\n📅 *Data:* ${dataH}\n\n✅ *Presentes:* ${p.length}\n${p.join('\n')}\n\n❌ *Ausentes:* ${f.length}\n${f.join('\n')}`;
+                msg = `*LISTA DE FREQUÊNCIA - JURUTI*\n📌 *Status:* Início de Turno\n📅 *Data:* ${dataH}\n\n✅ *PRESENTES:* ${p.length}\n${p.join('\n')}\n\n❌ *AUSENTES:* ${f.length}\n${f.join('\n')}`;
             }
 
+            // ABERTURA DO WHATSAPP
             setTimeout(() => {
-                window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
-                setTimeout(reiniciar, 1000);
-            }, 2000);
+                const urlWa = "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
+                window.location.href = urlWa; // Método mais robusto para mobile
+            }, 1000);
         });
     }
 
+    // Funções de Apoio
     function chamadaAPI(p, cb) { 
         const id = 'j'+Date.now(); 
         window[id]=d=>{cb(d);delete window[id];document.getElementById(id).remove();}; 
@@ -156,19 +161,11 @@
             const listaAdm = document.getElementById('lista-admin');
             listaDiv.innerHTML = ""; selInd.innerHTML = ""; listaAdm.innerHTML = "";
             equipe.forEach((nome, i) => {
-                listaDiv.innerHTML += `<div class="item-lista"><span><b>${nome}</b></span><div style="display:flex; gap:8px;"><input type="checkbox" id="check-${i}" checked onchange="monitorar()" style="transform: scale(1.5);"><select id="motivo-${i}" class="hidden" style="width:120px; padding:4px; font-size:11px; margin:0;"><option value="Falta">Falta</option><option value="Atestado">Atestado</option><option value="Férias">Férias</option><option value="Treinamento">Treinamento</option></select></div></div>`;
+                listaDiv.innerHTML += `<div class="item-lista"><span>${nome}</span><div style="display:flex; gap:8px;"><input type="checkbox" id="check-${i}" checked onchange="monitorar()"><select id="motivo-${i}" class="hidden" style="width:100px; font-size:10px; padding:2px; margin:0;"><option value="Falta">Falta</option><option value="Atestado">Atestado</option><option value="Férias">Férias</option></select></div></div>`;
                 selInd.innerHTML += `<option value="${nome}">${nome}</option>`;
-                listaAdm.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">${nome} <button onclick="deletarFuncionario('${nome}')" style="border:none; background:none; cursor:pointer;">🗑️</button></div>`;
+                listaAdm.innerHTML += `<div style="padding:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">${nome} <button onclick="deletarFuncionario('${nome}')">🗑️</button></div>`;
             });
         });
-    }
-
-    function alternarModo() {
-        const m = document.getElementById('modo-envio').value;
-        document.getElementById('campos-geral').classList.toggle('hidden', m === 'individual');
-        document.getElementById('campos-individual').classList.toggle('hidden', m === 'geral');
-        document.getElementById('status-gps').classList.toggle('hidden', m === 'geral');
-        if (m === 'individual') iniciarGps();
     }
 
     function iniciarGps() {
@@ -185,9 +182,9 @@
     function monitorar() { equipe.forEach((_, i) => { const cb = document.getElementById(`check-${i}`); document.getElementById(`motivo-${i}`).classList.toggle('hidden', cb.checked); }); }
     function abrirGestao() { if(prompt("Senha:") === "123") { document.getElementById('interface-usuario').classList.add('hidden'); document.getElementById('secao-gestao').classList.remove('hidden'); } }
     function fecharGestao() { document.getElementById('secao-gestao').classList.add('hidden'); document.getElementById('interface-usuario').classList.remove('hidden'); }
-    function addFuncionario() { const i = document.getElementById('novo-nome'); const n = i.value; if(!n) return; chamadaAPI(`acao=add&nome=${encodeURIComponent(n)}&senha=123`, () => { alert('Adicionado!'); i.value=""; atualizarDados(); }); }
+    function addFuncionario() { const i = document.getElementById('novo-nome'); const n = i.value; if(!n) return; chamadaAPI(`acao=add&nome=${encodeURIComponent(n)}&senha=123`, () => { alert('Ok!'); i.value=""; atualizarDados(); }); }
     function deletarFuncionario(n) { if(confirm(`Remover ${n}?`)) { chamadaAPI(`acao=deletar&nome=${encodeURIComponent(n)}&senha=123`, () => { atualizarDados(); }); } }
-    function reiniciar() { document.getElementById('tela-sucesso').classList.add('hidden'); document.getElementById('fill').style.width = "0%"; atualizarDados(); }
+    function reiniciar() { document.getElementById('tela-sucesso').classList.add('hidden'); document.getElementById('fill').style.width = "0%"; }
 
     window.onload = () => { 
         atualizarDados(); 
