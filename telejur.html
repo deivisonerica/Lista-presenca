@@ -5,24 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequência Telejur</title>
     <style>
-        :root { --primary: #075E54; --whatsapp: #25D366; --danger: #d9534f; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; }
-        h2 { color: var(--primary); text-align: center; margin-bottom: 20px; }
+        h2 { color: #075E54; text-align: center; margin-bottom: 20px; }
         .btn-admin { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 22px; background: none; border: none; }
         .card-status { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
-        .status-box { background: #ffffff; padding: 10px; border-radius: 12px; border: 1px solid #dee2e6; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .status-box span { display: block; font-size: 18px; font-weight: bold; color: var(--primary); }
+        .status-box { background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; text-align: center; }
+        .status-box span { display: block; font-size: 16px; font-weight: bold; color: #075E54; }
         .status-box label { font-size: 9px; text-transform: uppercase; color: #6c757d; font-weight: bold; }
-        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #f1f1f1; background: #fff; border-radius: 8px; margin-bottom: 5px; }
+        .item-lista { display: flex; align-items: center; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #f1f1f1; }
         .nome-func { font-size: 14px; font-weight: 600; color: #333; }
-        select { border-radius: 8px; border: 1px solid #ccc; padding: 6px; font-size: 12px; background: white; outline: none; }
+        select { border-radius: 8px; border: 1px solid #ccc; padding: 6px; font-size: 12px; background: white; }
         .hidden { display: none; }
-        button.enviar { width: 100%; background-color: var(--whatsapp); color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
+        button.enviar { width: 100%; background-color: #25D366; color: white; border: none; padding: 16px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
         #modal-admin { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .header-admin { position: sticky; top: -20px; background: white; padding: 20px 0 10px 0; border-bottom: 2px solid #f0f2f5; z-index: 101; margin-bottom: 10px; }
-        .btn-add { background: var(--whatsapp); color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; font-size: 20px; cursor: pointer; }
-        .btn-del { background: #ffebeb; color: var(--danger); border: 1px solid var(--danger); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-add { background: #25D366; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; font-size: 20px; cursor: pointer; }
+        .btn-del { background: #ffebeb; color: #d9534f; border: 1px solid #d9534f; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -47,7 +46,7 @@
 <div id="modal-admin" class="hidden">
     <div class="header-admin">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="margin: 0; color: var(--primary);">Gerenciar Equipe</h3>
+            <h3 style="margin: 0; color: #075E54;">Gerenciar Equipe</h3>
             <button onclick="fecharAdmin()" style="border:none; background:none; font-size:30px; color: #666; cursor: pointer;">✕</button>
         </div>
         <div style="display: flex; gap: 8px;">
@@ -56,10 +55,11 @@
         </div>
     </div>
     <div id="lista-admin"></div>
+    <div style="height: 60px;"></div>
 </div>
 
 <script>
-    const SCRIPT_URL = "SUA_URL_DO_APPS_SCRIPT_AQUI"; // COLOQUE SUA URL AQUI
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcDhXRYVo_Nn3VkFzHg9cq_rqUJZ1Ll9PcQzoIeOgt5VHxaQot1noJbyg5nKJSg6yW/exec"; 
     let equipe = [];
 
     function buscarNomes() {
@@ -88,17 +88,45 @@
                         <span class="nome-func">${nome}</span>
                     </div>
                     <select id="motivo-${i}" class="hidden" onchange="monitorar()">
-                        <option value="Apoio">🤝 Apoio</option>
-                        <option value="Falta sem justificativa">❌ Falta s/ Justif.</option>
-                        <option value="Atestado">🏥 Atestado</option>
-                        <option value="Férias">🏝️ Férias</option>
-                        <option value="Em viagem">🚗 Em viagem</option>
-                        <option value="Falta justificada">⚖️ Falta Justif.</option>
-                        <option value="Ausente">👤 Ausente</option>
+                        <option value="Apoio">Apoio</option>
+                        <option value="Falta sem justificativa">Falta s/ Justif.</option>
+                        <option value="Atestado">Atestado</option>
+                        <option value="Férias">Férias</option>
+                        <option value="Em viagem">Em viagem</option>
+                        <option value="Falta justificada">Falta Justif.</option>
+                        <option value="Ausente">Ausente</option>
                     </select>
                 </div>`;
         });
         monitorar();
+    }
+
+    function renderizarAdmin() {
+        const adminDiv = document.getElementById('lista-admin');
+        adminDiv.innerHTML = "";
+        equipe.forEach(nome => {
+            adminDiv.innerHTML += `
+                <div class="item-lista">
+                    <span style="font-size: 14px;">${nome}</span>
+                    <button class="btn-del" onclick="removerFuncionario('${nome}')">EXCLUIR</button>
+                </div>`;
+        });
+    }
+
+    async function salvarFuncionario() {
+        const input = document.getElementById('novo-nome');
+        const nome = input.value.trim();
+        if(!nome) return;
+        input.disabled = true;
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({acao: 'add', nome: nome}) });
+        input.value = ""; input.disabled = false;
+        buscarNomes();
+    }
+
+    async function removerFuncionario(nome) {
+        if(!confirm("Remover " + nome + "?")) return;
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({acao: 'del', nome: nome}) });
+        buscarNomes();
     }
 
     function monitorar() {
@@ -121,48 +149,42 @@
         document.getElementById('count-faltas').innerText = s;
     }
 
+    function abrirAdmin() { document.getElementById('modal-admin').classList.remove('hidden'); }
+    function fecharAdmin() { document.getElementById('modal-admin').classList.add('hidden'); }
+
     function enviarWhatsapp() {
         const dataH = new Date().toLocaleDateString('pt-BR');
         let cat = { planta: [], apoio: [], ferias: [], atestado: [], viagem: [], just: [], falta: [], ausente: [] };
         
         equipe.forEach((nome, i) => {
             const cb = document.getElementById(`check-${i}`);
-            if (cb && cb.checked) cat.planta.push(`🔹 ${nome}`);
-            else if (cb) {
+            if (cb && cb.checked) {
+                cat.planta.push(`_${nome}_`);
+            } else if (cb) {
                 const mot = document.getElementById(`motivo-${i}`).value;
-                const fmt = `• _${nome}_`;
-                if (mot === "Apoio") cat.apoio.push(fmt);
-                else if (mot === "Férias") cat.ferias.push(fmt);
-                else if (mot === "Atestado") cat.atestado.push(fmt);
-                else if (mot === "Em viagem") cat.viagem.push(fmt);
-                else if (mot === "Falta justificada") cat.just.push(fmt);
-                else if (mot === "Ausente") cat.ausente.push(fmt);
-                else cat.falta.push(fmt);
+                if (mot === "Apoio") cat.apoio.push(`_${nome}_`);
+                else if (mot === "Férias") cat.ferias.push(`_${nome}_`);
+                else if (mot === "Atestado") cat.atestado.push(`_${nome}_`);
+                else if (mot === "Em viagem") cat.viagem.push(`_${nome}_`);
+                else if (mot === "Falta justificada") cat.just.push(`_${nome}_`);
+                else if (mot === "Ausente") cat.ausente.push(`_${nome}_`);
+                else cat.falta.push(`_${nome}_`);
             }
         });
 
-        let msg = `*📋 FREQUÊNCIA TELEJUR* - ${dataH}\n`;
-        msg += `\n✅ *EFETIVO NA PLANTA: ${cat.planta.length}*\n${cat.planta.join('\n') || '_Ninguém na planta_'}\n`;
+        let msg = `*FREQUÊNCIA TELEJUR* - ${dataH}\n\n`;
+        msg += `✅ *Efetivo na planta: ${cat.planta.length}*\n${cat.planta.join('\n') || 'Nenhum'}\n\n`;
         
-        if (cat.apoio.length > 0) msg += `\n🤝 *APOIO:* ${cat.apoio.join(', ')}\n`;
+        if (cat.apoio.length > 0) msg += `🤝 *Apoio:* ${cat.apoio.join(', ')}\n\n`;
         
-        msg += `\n--------------------------------\n`;
-        if (cat.ferias.length > 0) msg += `🏝️ *Férias:* ${cat.ferias.join(', ')}\n`;
-        if (cat.atestado.length > 0) msg += `🏥 *Atestado:* ${cat.atestado.join(', ')}\n`;
-        if (cat.viagem.length > 0) msg += `🚗 *Viagem:* ${cat.viagem.join(', ')}\n`;
-        if (cat.just.length > 0) msg += `⚖️ *Justificado:* ${cat.just.join(', ')}\n`;
-        if (cat.falta.length > 0) msg += `❌ *Faltas:* ${cat.falta.join(', ')}\n`;
-        if (cat.ausente.length > 0) msg += `👤 *Ausente:* ${cat.ausente.join(', ')}\n`;
+        msg += `✔️ *Férias:* ${cat.ferias.join(', ') || '0'}\n`;
+        msg += `✔️ *Atestado:* ${cat.atestado.join(', ') || '0'}\n`;
+        msg += `✔️ *Ausente:* ${cat.ausente.join(', ') || '0'}\n`;
+        msg += `✔️ *Falta justificada:* ${cat.just.join(', ') || '0'}\n`;
+        msg += `✔️ *Faltas:* ${cat.falta.join(', ') || '0'}`;
 
         window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg));
     }
-
-    // ... (restante das funções de admin permanecem iguais)
-    function abrirAdmin() { document.getElementById('modal-admin').classList.remove('hidden'); }
-    function fecharAdmin() { document.getElementById('modal-admin').classList.add('hidden'); }
-    async function salvarFuncionario() { /* seu codigo de post */ }
-    async function removerFuncionario(n) { /* seu codigo de post */ }
-    function renderizarAdmin() { /* seu codigo de render */ }
 
     window.onload = buscarNomes;
 </script>
